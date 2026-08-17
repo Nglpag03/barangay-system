@@ -39,4 +39,25 @@ export class ResidentService {
 
     return data as Resident | null;
   }
+  async updateMyResidentRecord(updates: Partial<Pick<Resident, 'contact_number' | 'occupation'>>): Promise<Resident | null> {
+  const user = await this.authService.getUser();
+
+  if (!user) {
+    return null;
+  }
+
+  const { data, error } = await this.supabaseService.client
+    .from('residents')
+    .update(updates)
+    .eq('profile_id', user.id)
+    .select()
+    .maybeSingle();
+
+  if (error) {
+    console.error('Error updating resident record:', error);
+    return null;
+  }
+
+  return data as Resident | null;
+}
 }

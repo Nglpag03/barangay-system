@@ -11,12 +11,13 @@ import {
 import { AuthService } from '../../../core/services/auth.service';
 import { ResidentService } from '../../../core/services/resident.service';
 import { Resident } from '../../../core/model/resident.model';
-
+import { CommonModule } from '@angular/common';
 @Component({
   selector: 'app-user-dashboard',
   templateUrl: './user-dashboard.page.html',
   styleUrls: ['./user-dashboard.page.scss'],
   imports: [
+    CommonModule,
     IonContent,
     IonHeader,
     IonToolbar,
