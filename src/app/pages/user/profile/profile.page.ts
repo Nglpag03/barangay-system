@@ -17,6 +17,7 @@ import {
 
 import { ResidentService } from '../../../core/services/resident.service';
 import { Resident } from '../../../core/model/resident.model';
+import { Household } from '../../../core/model/household.model';
 
 @Component({
   selector: 'app-profile',
@@ -40,11 +41,10 @@ import { Resident } from '../../../core/model/resident.model';
 export class ProfilePage implements OnInit {
 
   resident: Resident | null = null;
+  household: Household | null = null;
   loading = true;
   saving = false;
 
-  // Editable fields only — the trigger blocks anything else server-side anyway,
-  // but we keep the form scoped to match what's actually allowed.
   contactNumber = '';
   occupation = '';
 
@@ -62,6 +62,7 @@ export class ProfilePage implements OnInit {
     if (this.resident) {
       this.contactNumber = this.resident.contact_number ?? '';
       this.occupation = this.resident.occupation ?? '';
+      this.household = await this.residentService.getMyHousehold();
     }
 
     this.loading = false;

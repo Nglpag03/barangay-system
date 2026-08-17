@@ -35,6 +35,22 @@
       You may update your contact number and occupation below.
     </p>
 
+      <div *ngIf="household">
+      <h3>Household</h3>
+      <p><strong>Household Number:</strong> {{ household.household_number }}</p>
+      <p>
+        <strong>Address:</strong>
+        {{ household.house_number }} {{ household.street }},
+        Purok {{ household.purok }},
+        {{ household.barangay }}, {{ household.municipality }}, {{ household.province }}
+      </p>
+    </div>
+
+    <div *ngIf="!household">
+      <h3>Household</h3>
+      <p>You are not currently assigned to a household. Please contact your barangay office.</p>
+    </div>
+
     <ion-item>
       <ion-label position="stacked">Contact Number</ion-label>
       <ion-input

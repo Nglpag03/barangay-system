@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { SupabaseService } from './supabase.service';
 import { AuthService } from './auth.service';
 import { Resident } from '../model/resident.model';
+import { Household } from '../model/household.model';
 
 @Injectable({
   providedIn: 'root'
@@ -59,5 +60,25 @@ export class ResidentService {
   }
 
   return data as Resident | null;
+}
+  async getMyHousehold(): Promise<Household | null> {
+  const resident = await this.getMyResidentRecord();
+
+  if (!resident || !resident.household_id) {
+    return null;
+  }
+
+  const { data, error } = await this.supabaseService.client
+    .from('households')
+    .select('*')
+    .eq('id', resident.household_id)
+    .maybeSingle();
+
+  if (error) {
+    console.error('Error fetching household:', error);
+    return null;
+  }
+
+  return data as Household | null;
 }
 }
