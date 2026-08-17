@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 import {
   IonContent,
   IonHeader,
@@ -10,7 +11,7 @@ import {
 import { AuthService } from '../../../core/services/auth.service';
 import { ResidentService } from '../../../core/services/resident.service';
 import { Resident } from '../../../core/model/resident.model';
-import { SupabaseService } from '../../../core/services/supabase.service';
+
 @Component({
   selector: 'app-user-dashboard',
   templateUrl: './user-dashboard.page.html',
@@ -26,15 +27,21 @@ import { SupabaseService } from '../../../core/services/supabase.service';
 export class UserDashboardPage implements OnInit {
 
   resident: Resident | null = null;
+  loading = true;
 
   constructor(
     private readonly authService: AuthService,
     private readonly residentService: ResidentService,
-    private readonly supabaseService: SupabaseService
+    private readonly router: Router
   ) {}
 
   async ngOnInit() {
     this.resident = await this.residentService.getMyResidentRecord();
-    console.log('MY RESIDENT RECORD:', this.resident);
+    this.loading = false;
+  }
+
+  async logout() {
+    await this.authService.signOut();
+    await this.router.navigate(['/login']);
   }
 }

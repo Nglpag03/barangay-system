@@ -6,11 +6,27 @@
 
 <ion-content class="ion-padding">
 
-  <h1>Welcome</h1>
+  <div *ngIf="loading">
+    <p>Loading your information...</p>
+  </div>
 
-  <p>
-    You are logged in as a Barangay User.
-  </p>
+  <div *ngIf="!loading && resident">
+    <h1>Welcome, {{ resident.first_name }} {{ resident.last_name }}</h1>
+
+    <p><strong>Resident Number:</strong> {{ resident.resident_number }}</p>
+    <p><strong>Birth Date:</strong> {{ resident.birth_date }}</p>
+    <p><strong>Sex:</strong> {{ resident.sex }}</p>
+    <p><strong>Civil Status:</strong> {{ resident.civil_status }}</p>
+    <p><strong>Contact Number:</strong> {{ resident.contact_number || 'Not provided' }}</p>
+  </div>
+
+  <div *ngIf="!loading && !resident">
+    <h1>Welcome</h1>
+    <p>
+      Your resident record hasn't been set up yet. Please contact your
+      barangay office to complete your profile.
+    </p>
+  </div>
 
   <ion-button
     expand="block"
