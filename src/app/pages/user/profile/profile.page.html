@@ -1,0 +1,68 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/user/dashboard"></ion-back-button>
+    </ion-buttons>
+    <ion-title>My Profile</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+
+  <div *ngIf="loading">
+    <p>Loading your profile...</p>
+  </div>
+
+  <div *ngIf="!loading && !resident">
+    <p>
+      Your resident record hasn't been set up yet. Please contact your
+      barangay office to complete your profile.
+    </p>
+  </div>
+
+  <div *ngIf="!loading && resident">
+
+    <h2>{{ resident.first_name }} {{ resident.middle_name }} {{ resident.last_name }} {{ resident.suffix }}</h2>
+
+    <p><strong>Resident Number:</strong> {{ resident.resident_number }}</p>
+    <p><strong>Birth Date:</strong> {{ resident.birth_date }}</p>
+    <p><strong>Birth Place:</strong> {{ resident.birth_place || 'Not provided' }}</p>
+    <p><strong>Sex:</strong> {{ resident.sex }}</p>
+    <p><strong>Civil Status:</strong> {{ resident.civil_status }}</p>
+
+    <p class="note">
+      The fields above can only be updated by your barangay office.
+      You may update your contact number and occupation below.
+    </p>
+
+    <ion-item>
+      <ion-label position="stacked">Contact Number</ion-label>
+      <ion-input
+        [(ngModel)]="contactNumber"
+        type="tel"
+        placeholder="e.g. 09171234567">
+      </ion-input>
+    </ion-item>
+
+    <ion-item>
+      <ion-label position="stacked">Occupation</ion-label>
+      <ion-input
+        [(ngModel)]="occupation"
+        type="text"
+        placeholder="e.g. Teacher">
+      </ion-input>
+    </ion-item>
+
+    <ion-button
+      expand="block"
+      [disabled]="saving"
+      (click)="save()">
+      {{ saving ? 'Saving...' : 'Save Changes' }}
+    </ion-button>
+
+    <p class="error" *ngIf="saveError">{{ saveError }}</p>
+    <p class="success" *ngIf="saveSuccess">Saved successfully.</p>
+
+  </div>
+
+</ion-content>

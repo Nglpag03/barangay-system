@@ -28,6 +28,14 @@ export const routes: Routes = [
       .then((m) => m.UserDashboardPage),
 },
 
+{
+  path: 'user/profile',
+  canActivate: [authGuard, userGuard],
+  loadComponent: () =>
+    import('./pages/user/profile/profile.page')
+      .then((m) => m.ProfilePage),
+},
+
   {
     path: 'home',
     loadComponent: () =>
