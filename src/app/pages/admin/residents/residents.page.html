@@ -9,16 +9,22 @@
 
 <ion-content class="ion-padding">
 
+<ion-searchbar
+  [(ngModel)]="searchTerm"
+  (ionInput)="onSearchChange($event)"
+  placeholder="Search by name or resident number">
+</ion-searchbar>
+
   <div *ngIf="loading">
     <p>Loading residents...</p>
   </div>
 
-  <div *ngIf="!loading && residents.length === 0">
+  <div *ngIf="!loading && filteredResidents.length === 0">
     <p>No residents found.</p>
   </div>
 
-  <ion-list *ngIf="!loading && residents.length > 0">
-    <ion-item *ngFor="let resident of residents">
+  <ion-list *ngIf="!loading && filteredResidents.length > 0">
+    <ion-item *ngFor="let resident of filteredResidents">
       <ion-label>
         <h2>{{ resident.last_name }}, {{ resident.first_name }} {{ resident.middle_name }}</h2>
         <p>Resident #: {{ resident.resident_number }}</p>
