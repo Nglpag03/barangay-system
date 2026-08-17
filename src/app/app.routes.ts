@@ -21,6 +21,14 @@ export const routes: Routes = [
 },
 
 {
+  path: 'admin/residents',
+  canActivate: [authGuard, adminGuard],
+  loadComponent: () =>
+    import('./pages/admin/residents/residents.page')
+      .then((m) => m.ResidentsPage),
+},
+
+{
   path: 'user/dashboard',
   canActivate: [authGuard, userGuard],
   loadComponent: () =>

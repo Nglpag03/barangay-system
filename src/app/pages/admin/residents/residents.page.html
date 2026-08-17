@@ -1,0 +1,31 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/admin/dashboard"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Residents</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+
+  <div *ngIf="loading">
+    <p>Loading residents...</p>
+  </div>
+
+  <div *ngIf="!loading && residents.length === 0">
+    <p>No residents found.</p>
+  </div>
+
+  <ion-list *ngIf="!loading && residents.length > 0">
+    <ion-item *ngFor="let resident of residents">
+      <ion-label>
+        <h2>{{ resident.last_name }}, {{ resident.first_name }} {{ resident.middle_name }}</h2>
+        <p>Resident #: {{ resident.resident_number }}</p>
+        <p>Sex: {{ resident.sex }} • Civil Status: {{ resident.civil_status }}</p>
+        <p *ngIf="!resident.is_active" class="inactive-tag">Inactive</p>
+      </ion-label>
+    </ion-item>
+  </ion-list>
+
+</ion-content>

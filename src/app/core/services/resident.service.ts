@@ -81,4 +81,19 @@ export class ResidentService {
 
   return data as Household | null;
 }
+
+  async getAllResidents(): Promise<Resident[]> {
+  const { data, error } = await this.supabaseService.client
+    .from('residents')
+    .select('*')
+    .order('last_name', { ascending: true });
+
+  if (error) {
+    console.error('Error fetching all residents:', error);
+    return [];
+  }
+
+  return data as Resident[];
+}
+
 }
