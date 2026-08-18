@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import {
   IonContent,
   IonHeader,
@@ -45,11 +45,12 @@ import { Resident, Sex, CivilStatus } from '../../../../core/model/resident.mode
 })
 export class ResidentDetailPage implements OnInit {
 
+  isNew = false;
   resident: Resident | null = null;
   loading = true;
   saving = false;
 
-  // Editable form fields (mirrors the resident record, admin can edit all of these)
+  residentNumber = '';
   firstName = '';
   middleName = '';
   lastName = '';
@@ -69,20 +70,24 @@ export class ResidentDetailPage implements OnInit {
 
   constructor(
     private readonly route: ActivatedRoute,
+    private readonly router: Router,
     private readonly residentService: ResidentService
   ) {}
 
   async ngOnInit() {
-    this.residentId = this.route.snapshot.paramMap.get('id');
+    const idParam = this.route.snapshot.paramMap.get('id');
 
-    if (!this.residentId) {
+    if (!idParam || idParam === 'new') {
+      this.isNew = true;
       this.loading = false;
       return;
     }
 
+    this.residentId = idParam;
     this.resident = await this.residentService.getResidentById(this.residentId);
 
     if (this.resident) {
+      this.residentNumber = this.resident.resident_number;
       this.firstName = this.resident.first_name;
       this.middleName = this.resident.middle_name ?? '';
       this.lastName = this.resident.last_name;
@@ -100,15 +105,12 @@ export class ResidentDetailPage implements OnInit {
   }
 
   async save() {
-    if (!this.residentId) {
-      return;
-    }
-
     this.saving = true;
     this.saveError = null;
     this.saveSuccess = false;
 
-    const updated = await this.residentService.updateResidentAsAdmin(this.residentId, {
+    const payload = {
+      resident_number: this.residentNumber,
       first_name: this.firstName,
       middle_name: this.middleName || null,
       last_name: this.lastName,
@@ -120,12 +122,37 @@ export class ResidentDetailPage implements OnInit {
       contact_number: this.contactNumber || null,
       occupation: this.occupation || null,
       is_active: this.isActive
-    });
+    };
+
+    if (this.isNew) {
+      const created = await this.residentService.createResident({
+        ...payload,
+        profile_id: null,
+        household_id: null
+      });
+
+      this.saving = false;
+
+      if (!created) {
+        this.saveError = 'Something went wrong while creating the resident.';
+        return;
+      }
+
+      this.router.navigate(['/admin/residents', created.id]);
+      return;
+    }
+
+    if (!this.residentId) {
+      this.saving = false;
+      return;
+    }
+
+    const updated = await this.residentService.updateResidentAsAdmin(this.residentId, payload);
 
     this.saving = false;
 
     if (!updated) {
-      this.saveError = 'Something went wrong while saving. Please try again.';
+      this.saveError = 'Something went wrong while saving.';
       return;
     }
 

@@ -127,4 +127,19 @@ async updateResidentAsAdmin(id: string, updates: Partial<Resident>): Promise<Res
   return data as Resident | null;
 }
 
+async createResident(resident: Omit<Resident, 'id' | 'created_at' | 'updated_at'>): Promise<Resident | null> {
+  const { data, error } = await this.supabaseService.client
+    .from('residents')
+    .insert(resident)
+    .select()
+    .maybeSingle();
+
+  if (error) {
+    console.error('Error creating resident:', error);
+    return null;
+  }
+
+  return data as Resident | null;
+}
+
 }

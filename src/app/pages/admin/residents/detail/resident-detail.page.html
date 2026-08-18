@@ -3,7 +3,7 @@
     <ion-buttons slot="start">
       <ion-back-button defaultHref="/admin/residents"></ion-back-button>
     </ion-buttons>
-    <ion-title>Resident Details</ion-title>
+    <ion-title>{{ isNew ? 'Add Resident' : 'Resident Details' }}</ion-title>
   </ion-toolbar>
 </ion-header>
 
@@ -13,13 +13,16 @@
     <p>Loading resident...</p>
   </div>
 
-  <div *ngIf="!loading && !resident">
+  <div *ngIf="!loading && !isNew && !resident">
     <p>Resident not found.</p>
   </div>
 
-  <div *ngIf="!loading && resident">
+  <div *ngIf="!loading && (isNew || resident)">
 
-    <p><strong>Resident Number:</strong> {{ resident.resident_number }}</p>
+    <ion-item>
+      <ion-label position="stacked">Resident Number</ion-label>
+      <ion-input [(ngModel)]="residentNumber" type="text" placeholder="e.g. RES-0002"></ion-input>
+    </ion-item>
 
     <ion-item>
       <ion-label position="stacked">First Name</ion-label>
@@ -87,7 +90,7 @@
       expand="block"
       [disabled]="saving"
       (click)="save()">
-      {{ saving ? 'Saving...' : 'Save Changes' }}
+      {{ saving ? 'Saving...' : (isNew ? 'Create Resident' : 'Save Changes') }}
     </ion-button>
 
     <p class="error" *ngIf="saveError">{{ saveError }}</p>
