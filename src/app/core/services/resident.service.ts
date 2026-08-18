@@ -96,4 +96,35 @@ export class ResidentService {
   return data as Resident[];
 }
 
+async getResidentById(id: string): Promise<Resident | null> {
+  const { data, error } = await this.supabaseService.client
+    .from('residents')
+    .select('*')
+    .eq('id', id)
+    .maybeSingle();
+
+  if (error) {
+    console.error('Error fetching resident by id:', error);
+    return null;
+  }
+
+  return data as Resident | null;
+}
+
+async updateResidentAsAdmin(id: string, updates: Partial<Resident>): Promise<Resident | null> {
+  const { data, error } = await this.supabaseService.client
+    .from('residents')
+    .update(updates)
+    .eq('id', id)
+    .select()
+    .maybeSingle();
+
+  if (error) {
+    console.error('Error updating resident as admin:', error);
+    return null;
+  }
+
+  return data as Resident | null;
+}
+
 }

@@ -16,13 +16,14 @@ import {
 
 import { ResidentService } from '../../../core/services/resident.service';
 import { Resident } from '../../../core/model/resident.model';
-
+import { RouterLink } from '@angular/router';
 @Component({
   selector: 'app-admin-residents',
   templateUrl: './residents.page.html',
   styleUrls: ['./residents.page.scss'],
   imports: [
     CommonModule,
+    RouterLink,
     FormsModule,
     IonContent,
     IonHeader,

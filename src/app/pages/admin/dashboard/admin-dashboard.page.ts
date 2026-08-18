@@ -9,13 +9,14 @@ import {
 } from '@ionic/angular/standalone';
 
 import { AuthService } from '../../../core/services/auth.service';
-
+import {Router} from '@angular/router';
 @Component({
   selector: 'app-admin-dashboard',
   templateUrl: './admin-dashboard.page.html',
   styleUrls: ['./admin-dashboard.page.scss'],
   imports: [
     RouterLink,
+    Router,
     IonContent,
     IonHeader,
     IonToolbar,
@@ -26,17 +27,12 @@ import { AuthService } from '../../../core/services/auth.service';
 export class AdminDashboardPage {
 
   constructor(
-    private readonly authService: AuthService
+    private readonly authService: AuthService,
+    private readonly router: Router
   ) {}
 
   async logout() {
-    const { error } = await this.authService.signOut();
-
-    if (error) {
-      console.error('Logout error:', error);
-      return;
-    }
-
-    console.log('Logged out');
+     await this.authService.signOut();
+    await this.router.navigate(['/login']);
   }
 }

@@ -24,14 +24,17 @@
   </div>
 
   <ion-list *ngIf="!loading && filteredResidents.length > 0">
-    <ion-item *ngFor="let resident of filteredResidents">
-      <ion-label>
-        <h2>{{ resident.last_name }}, {{ resident.first_name }} {{ resident.middle_name }}</h2>
-        <p>Resident #: {{ resident.resident_number }}</p>
-        <p>Sex: {{ resident.sex }} • Civil Status: {{ resident.civil_status }}</p>
-        <p *ngIf="!resident.is_active" class="inactive-tag">Inactive</p>
-      </ion-label>
-    </ion-item>
+<ion-item
+  *ngFor="let resident of filteredResidents"
+  button="true"
+  [routerLink]="['/admin/residents', resident.id]">
+  <ion-label>
+    <h2>{{ resident.last_name }}, {{ resident.first_name }} {{ resident.middle_name }}</h2>
+    <p>Resident #: {{ resident.resident_number }}</p>
+    <p>Sex: {{ resident.sex }} • Civil Status: {{ resident.civil_status }}</p>
+    <p *ngIf="!resident.is_active" class="inactive-tag">Inactive</p>
+  </ion-label>
+</ion-item>
   </ion-list>
 
 </ion-content>

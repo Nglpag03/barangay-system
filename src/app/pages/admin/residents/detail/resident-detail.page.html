@@ -1,0 +1,98 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/admin/residents"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Resident Details</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+
+  <div *ngIf="loading">
+    <p>Loading resident...</p>
+  </div>
+
+  <div *ngIf="!loading && !resident">
+    <p>Resident not found.</p>
+  </div>
+
+  <div *ngIf="!loading && resident">
+
+    <p><strong>Resident Number:</strong> {{ resident.resident_number }}</p>
+
+    <ion-item>
+      <ion-label position="stacked">First Name</ion-label>
+      <ion-input [(ngModel)]="firstName" type="text"></ion-input>
+    </ion-item>
+
+    <ion-item>
+      <ion-label position="stacked">Middle Name</ion-label>
+      <ion-input [(ngModel)]="middleName" type="text"></ion-input>
+    </ion-item>
+
+    <ion-item>
+      <ion-label position="stacked">Last Name</ion-label>
+      <ion-input [(ngModel)]="lastName" type="text"></ion-input>
+    </ion-item>
+
+    <ion-item>
+      <ion-label position="stacked">Suffix</ion-label>
+      <ion-input [(ngModel)]="suffix" type="text" placeholder="e.g. Jr., Sr., III"></ion-input>
+    </ion-item>
+
+    <ion-item>
+      <ion-label position="stacked">Birth Date</ion-label>
+      <ion-input [(ngModel)]="birthDate" type="date"></ion-input>
+    </ion-item>
+
+    <ion-item>
+      <ion-label position="stacked">Birth Place</ion-label>
+      <ion-input [(ngModel)]="birthPlace" type="text"></ion-input>
+    </ion-item>
+
+    <ion-item>
+      <ion-label position="stacked">Sex</ion-label>
+      <ion-select [(ngModel)]="sex">
+        <ion-select-option value="male">Male</ion-select-option>
+        <ion-select-option value="female">Female</ion-select-option>
+      </ion-select>
+    </ion-item>
+
+    <ion-item>
+      <ion-label position="stacked">Civil Status</ion-label>
+      <ion-select [(ngModel)]="civilStatus">
+        <ion-select-option value="single">Single</ion-select-option>
+        <ion-select-option value="married">Married</ion-select-option>
+        <ion-select-option value="widowed">Widowed</ion-select-option>
+        <ion-select-option value="separated">Separated</ion-select-option>
+      </ion-select>
+    </ion-item>
+
+    <ion-item>
+      <ion-label position="stacked">Contact Number</ion-label>
+      <ion-input [(ngModel)]="contactNumber" type="tel"></ion-input>
+    </ion-item>
+
+    <ion-item>
+      <ion-label position="stacked">Occupation</ion-label>
+      <ion-input [(ngModel)]="occupation" type="text"></ion-input>
+    </ion-item>
+
+    <ion-item>
+      <ion-checkbox [(ngModel)]="isActive">Active resident</ion-checkbox>
+    </ion-item>
+
+    <ion-button
+      expand="block"
+      [disabled]="saving"
+      (click)="save()">
+      {{ saving ? 'Saving...' : 'Save Changes' }}
+    </ion-button>
+
+    <p class="error" *ngIf="saveError">{{ saveError }}</p>
+    <p class="success" *ngIf="saveSuccess">Saved successfully.</p>
+
+  </div>
+
+</ion-content>
