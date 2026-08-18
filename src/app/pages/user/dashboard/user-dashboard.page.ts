@@ -10,9 +10,11 @@ import {
 
 import { AuthService } from '../../../core/services/auth.service';
 import { ResidentService } from '../../../core/services/resident.service';
+import { RequestService } from '../../../core/services/request.service';
 import { Resident } from '../../../core/model/resident.model';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
+
 @Component({
   selector: 'app-user-dashboard',
   templateUrl: './user-dashboard.page.html',

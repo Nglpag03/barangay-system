@@ -1,0 +1,61 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/admin/dashboard"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Requests</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+
+  <div *ngIf="loading">
+    <p>Loading requests...</p>
+  </div>
+
+  <div *ngIf="!loading && requests.length === 0">
+    <p>No requests found.</p>
+  </div>
+
+  <ion-list *ngIf="!loading && requests.length > 0">
+    <ion-item *ngFor="let request of requests">
+      <ion-label>
+        <h2>{{ getResidentName(request.resident_id) }} — {{ request.request_type }}</h2>
+        <p *ngIf="request.purpose">Purpose: {{ request.purpose }}</p>
+        <p>Requested: {{ request.requested_at | date:'medium' }}</p>
+
+        <ion-item lines="none">
+          <ion-label position="stacked">Status</ion-label>
+          <ion-select [(ngModel)]="statusDrafts[request.id]">
+            <ion-select-option value="pending">Pending</ion-select-option>
+            <ion-select-option value="processing">Processing</ion-select-option>
+            <ion-select-option value="approved">Approved</ion-select-option>
+            <ion-select-option value="rejected">Rejected</ion-select-option>
+            <ion-select-option value="completed">Completed</ion-select-option>
+          </ion-select>
+        </ion-item>
+
+        <ion-item lines="none">
+          <ion-label position="stacked">Remarks</ion-label>
+          <ion-textarea
+            [(ngModel)]="remarksDrafts[request.id]"
+            placeholder="Optional note for the resident"
+            autoGrow="true">
+          </ion-textarea>
+        </ion-item>
+
+        <ion-button
+          size="small"
+          [disabled]="savingId === request.id"
+          (click)="updateStatus(request)">
+          {{ savingId === request.id ? 'Saving...' : 'Update' }}
+        </ion-button>
+      </ion-label>
+
+      <ion-badge slot="end" [color]="request.status === 'approved' || request.status === 'completed' ? 'success' : (request.status === 'rejected' ? 'danger' : 'warning')">
+        {{ request.status }}
+      </ion-badge>
+    </ion-item>
+  </ion-list>
+
+</ion-content>

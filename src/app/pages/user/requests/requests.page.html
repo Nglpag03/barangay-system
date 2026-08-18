@@ -1,0 +1,40 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/user/dashboard"></ion-back-button>
+    </ion-buttons>
+    <ion-title>My Requests</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+
+  <ion-button
+    expand="block"
+    routerLink="/user/requests/new">
+    + Submit New Request
+  </ion-button>
+
+  <div *ngIf="loading">
+    <p>Loading your requests...</p>
+  </div>
+
+  <div *ngIf="!loading && requests.length === 0">
+    <p>You haven't submitted any requests yet.</p>
+  </div>
+
+  <ion-list *ngIf="!loading && requests.length > 0">
+    <ion-item *ngFor="let request of requests">
+      <ion-label>
+        <h2>{{ request.request_type }}</h2>
+        <p *ngIf="request.purpose">Purpose: {{ request.purpose }}</p>
+        <p>Requested: {{ request.requested_at | date:'medium' }}</p>
+        <p *ngIf="request.remarks">Remarks: {{ request.remarks }}</p>
+      </ion-label>
+      <ion-badge slot="end" [color]="request.status === 'approved' || request.status === 'completed' ? 'success' : (request.status === 'rejected' ? 'danger' : 'warning')">
+        {{ request.status }}
+      </ion-badge>
+    </ion-item>
+  </ion-list>
+
+</ion-content>

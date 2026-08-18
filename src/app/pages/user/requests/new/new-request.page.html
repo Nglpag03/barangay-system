@@ -1,0 +1,41 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/user/requests"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Submit a Request</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+
+  <ion-item>
+    <ion-label position="stacked">Request Type</ion-label>
+    <ion-select [(ngModel)]="requestType" placeholder="Select a request type">
+      <ion-select-option value="barangay_clearance">Barangay Clearance</ion-select-option>
+      <ion-select-option value="certificate_of_residency">Certificate of Residency</ion-select-option>
+      <ion-select-option value="certificate_of_indigency">Certificate of Indigency</ion-select-option>
+      <ion-select-option value="business_clearance">Business Clearance</ion-select-option>
+      <ion-select-option value="other">Other</ion-select-option>
+    </ion-select>
+  </ion-item>
+
+  <ion-item>
+    <ion-label position="stacked">Purpose (optional)</ion-label>
+    <ion-textarea
+      [(ngModel)]="purpose"
+      placeholder="e.g. Employment requirement, loan application, etc."
+      autoGrow="true">
+    </ion-textarea>
+  </ion-item>
+
+  <ion-button
+    expand="block"
+    [disabled]="saving"
+    (click)="submit()">
+    {{ saving ? 'Submitting...' : 'Submit Request' }}
+  </ion-button>
+
+  <p class="error" *ngIf="saveError">{{ saveError }}</p>
+
+</ion-content>

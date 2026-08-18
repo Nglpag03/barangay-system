@@ -69,6 +69,30 @@ export const routes: Routes = [
 },
 
 {
+  path: 'user/requests',
+  canActivate: [authGuard, userGuard],
+  loadComponent: () =>
+    import('./pages/user/requests/requests.page')
+      .then((m) => m.UserRequestsPage),
+},
+
+{
+  path: 'user/requests/new',
+  canActivate: [authGuard, userGuard],
+  loadComponent: () =>
+    import('./pages/user/requests/new/new-request.page')
+      .then((m) => m.NewRequestPage),
+},
+
+{
+  path: 'admin/requests',
+  canActivate: [authGuard, adminGuard],
+  loadComponent: () =>
+    import('./pages/admin/requests/requests.page')
+      .then((m) => m.AdminRequestsPage),
+},
+
+{
   path: 'user/dashboard',
   canActivate: [authGuard, userGuard],
   loadComponent: () =>
