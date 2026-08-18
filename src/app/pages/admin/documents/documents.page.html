@@ -1,0 +1,74 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/admin/dashboard"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Documents</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+
+  <h2>Upload New Document</h2>
+
+  <ion-item>
+    <ion-label position="stacked">Resident</ion-label>
+    <ion-select [(ngModel)]="selectedResidentId" placeholder="Select a resident">
+      <ion-select-option
+        *ngFor="let resident of residents"
+        [value]="resident.id">
+        {{ resident.last_name }}, {{ resident.first_name }} ({{ resident.resident_number }})
+      </ion-select-option>
+    </ion-select>
+  </ion-item>
+
+  <ion-item>
+    <ion-label position="stacked">Document Type</ion-label>
+    <ion-input [(ngModel)]="documentType" type="text" placeholder="e.g. Barangay Clearance"></ion-input>
+  </ion-item>
+
+  <ion-item>
+    <ion-label position="stacked">Document Number (optional)</ion-label>
+    <ion-input [(ngModel)]="documentNumber" type="text"></ion-input>
+  </ion-item>
+
+  <ion-item>
+    <ion-label position="stacked">File</ion-label>
+    <input type="file" (change)="onFileSelected($event)" accept=".pdf,.jpg,.jpeg,.png" />
+  </ion-item>
+
+  <ion-button
+    expand="block"
+    [disabled]="uploading"
+    (click)="upload()">
+    {{ uploading ? 'Uploading...' : 'Upload Document' }}
+  </ion-button>
+
+  <p class="error" *ngIf="uploadError">{{ uploadError }}</p>
+
+  <hr />
+
+  <h2>All Documents</h2>
+
+  <div *ngIf="loading">
+    <p>Loading documents...</p>
+  </div>
+
+  <div *ngIf="!loading && documents.length === 0">
+    <p>No documents uploaded yet.</p>
+  </div>
+
+  <ion-list *ngIf="!loading && documents.length > 0">
+    <ion-item *ngFor="let document of documents">
+      <ion-label>
+        <h2>{{ getResidentName(document.resident_id) }} — {{ document.document_type }}</h2>
+        <p *ngIf="document.document_number">Number: {{ document.document_number }}</p>
+        <p>Issued: {{ document.issued_at | date:'medium' }}</p>
+      </ion-label>
+      <ion-badge slot="end" [color]="document.status === 'issued' ? 'success' : 'danger'">
+        {{ document.status }}
+      </ion-badge>
+    </ion-item>
+  </ion-list>
+
+</ion-content>

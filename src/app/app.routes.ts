@@ -93,6 +93,22 @@ export const routes: Routes = [
 },
 
 {
+  path: 'admin/documents',
+  canActivate: [authGuard, adminGuard],
+  loadComponent: () =>
+    import('./pages/admin/documents/documents.page')
+      .then((m) => m.AdminDocumentsPage),
+},
+
+{
+  path: 'user/documents',
+  canActivate: [authGuard, userGuard],
+  loadComponent: () =>
+    import('./pages/user/documents/documents.page')
+      .then((m) => m.UserDocumentsPage),
+},
+
+{
   path: 'user/dashboard',
   canActivate: [authGuard, userGuard],
   loadComponent: () =>

@@ -1,0 +1,42 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/user/dashboard"></ion-back-button>
+    </ion-buttons>
+    <ion-title>My Documents</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+
+  <div *ngIf="loading">
+    <p>Loading your documents...</p>
+  </div>
+
+  <div *ngIf="!loading && documents.length === 0">
+    <p>You don't have any documents yet.</p>
+  </div>
+
+  <ion-list *ngIf="!loading && documents.length > 0">
+    <ion-item *ngFor="let doc of documents">
+      <ion-label>
+        <h2>{{ doc.document_type }}</h2>
+        <p *ngIf="doc.document_number">Number: {{ doc.document_number }}</p>
+        <p>Issued: {{ doc.issued_at | date:'medium' }}</p>
+      </ion-label>
+
+      <ion-badge slot="end" [color]="doc.status === 'issued' ? 'success' : 'danger'">
+        {{ doc.status }}
+      </ion-badge>
+
+      <ion-button
+        slot="end"
+        size="small"
+        [disabled]="!doc.file_path || downloadingId === doc.id"
+        (click)="download(doc)">
+        {{ downloadingId === doc.id ? 'Loading...' : 'Download' }}
+      </ion-button>
+    </ion-item>
+  </ion-list>
+
+</ion-content>
