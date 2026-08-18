@@ -19,7 +19,9 @@ import {
 } from '@ionic/angular/standalone';
 
 import { ResidentService } from '../../../../core/services/resident.service';
+import { HouseholdService } from '../../../../core/services/household.service';
 import { Resident, Sex, CivilStatus } from '../../../../core/model/resident.model';
+import { Household } from '../../../../core/model/household.model';
 
 @Component({
   selector: 'app-resident-detail',
@@ -47,6 +49,7 @@ export class ResidentDetailPage implements OnInit {
 
   isNew = false;
   resident: Resident | null = null;
+  households: Household[] = [];
   loading = true;
   saving = false;
 
@@ -62,6 +65,7 @@ export class ResidentDetailPage implements OnInit {
   contactNumber = '';
   occupation = '';
   isActive = true;
+  householdId: string | null = null;
 
   saveError: string | null = null;
   saveSuccess = false;
@@ -71,10 +75,13 @@ export class ResidentDetailPage implements OnInit {
   constructor(
     private readonly route: ActivatedRoute,
     private readonly router: Router,
-    private readonly residentService: ResidentService
+    private readonly residentService: ResidentService,
+    private readonly householdService: HouseholdService
   ) {}
 
   async ngOnInit() {
+    this.households = await this.householdService.getAllHouseholds();
+
     const idParam = this.route.snapshot.paramMap.get('id');
 
     if (!idParam || idParam === 'new') {
@@ -99,6 +106,7 @@ export class ResidentDetailPage implements OnInit {
       this.contactNumber = this.resident.contact_number ?? '';
       this.occupation = this.resident.occupation ?? '';
       this.isActive = this.resident.is_active;
+      this.householdId = this.resident.household_id;
     }
 
     this.loading = false;
@@ -121,14 +129,14 @@ export class ResidentDetailPage implements OnInit {
       civil_status: this.civilStatus,
       contact_number: this.contactNumber || null,
       occupation: this.occupation || null,
-      is_active: this.isActive
+      is_active: this.isActive,
+      household_id: this.householdId
     };
 
     if (this.isNew) {
       const created = await this.residentService.createResident({
         ...payload,
-        profile_id: null,
-        household_id: null
+        profile_id: null
       });
 
       this.saving = false;

@@ -82,16 +82,28 @@
       <ion-input [(ngModel)]="occupation" type="text"></ion-input>
     </ion-item>
 
-    <ion-item>
-      <ion-checkbox [(ngModel)]="isActive">Active resident</ion-checkbox>
-    </ion-item>
+<ion-item>
+  <ion-checkbox [(ngModel)]="isActive">Active resident</ion-checkbox>
+</ion-item>
 
-    <ion-button
-      expand="block"
-      [disabled]="saving"
-      (click)="save()">
-      {{ saving ? 'Saving...' : (isNew ? 'Create Resident' : 'Save Changes') }}
-    </ion-button>
+<ion-item>
+  <ion-label position="stacked">Household</ion-label>
+  <ion-select [(ngModel)]="householdId" placeholder="No household assigned">
+    <ion-select-option [value]="null">No household assigned</ion-select-option>
+    <ion-select-option
+      *ngFor="let household of households"
+      [value]="household.id">
+      {{ household.household_number }} — {{ household.barangay }}
+    </ion-select-option>
+  </ion-select>
+</ion-item>
+
+<ion-button
+  expand="block"
+  [disabled]="saving"
+  (click)="save()">
+  {{ saving ? 'Saving...' : (isNew ? 'Create Resident' : 'Save Changes') }}
+</ion-button>
 
     <p class="error" *ngIf="saveError">{{ saveError }}</p>
     <p class="success" *ngIf="saveSuccess">Saved successfully.</p>
