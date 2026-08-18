@@ -37,6 +37,30 @@ export const routes: Routes = [
 },
 
 {
+  path: 'admin/households',
+  canActivate: [authGuard, adminGuard],
+  loadComponent: () =>
+    import('./pages/admin/households/households.page')
+      .then((m) => m.HouseholdsPage),
+},
+
+{
+  path: 'admin/households/new',
+  canActivate: [authGuard, adminGuard],
+  loadComponent: () =>
+    import('./pages/admin/households/detail/household-detail.page')
+      .then((m) => m.HouseholdDetailPage),
+},
+
+{
+  path: 'admin/households/:id',
+  canActivate: [authGuard, adminGuard],
+  loadComponent: () =>
+    import('./pages/admin/households/detail/household-detail.page')
+      .then((m) => m.HouseholdDetailPage),
+},
+
+{
   path: 'user/dashboard',
   canActivate: [authGuard, userGuard],
   loadComponent: () =>

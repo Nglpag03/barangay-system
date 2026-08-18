@@ -1,0 +1,42 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/admin/dashboard"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Households</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+
+  <ion-button
+    expand="block"
+    routerLink="/admin/households/new">
+    + Add Household
+  </ion-button>
+
+  <div *ngIf="loading">
+    <p>Loading households...</p>
+  </div>
+
+  <div *ngIf="!loading && households.length === 0">
+    <p>No households found.</p>
+  </div>
+
+  <ion-list *ngIf="!loading && households.length > 0">
+    <ion-item
+      *ngFor="let household of households"
+      button="true"
+      [routerLink]="['/admin/households', household.id]">
+      <ion-label>
+        <h2>{{ household.household_number }}</h2>
+        <p>
+          {{ household.house_number }} {{ household.street }},
+          Purok {{ household.purok }},
+          {{ household.barangay }}
+        </p>
+      </ion-label>
+    </ion-item>
+  </ion-list>
+
+</ion-content>

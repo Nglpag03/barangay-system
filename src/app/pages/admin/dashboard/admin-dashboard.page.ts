@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { RouterLink, Router } from '@angular/router';
 import {
   IonContent,
   IonHeader,
@@ -9,14 +9,13 @@ import {
 } from '@ionic/angular/standalone';
 
 import { AuthService } from '../../../core/services/auth.service';
-import {Router} from '@angular/router';
+
 @Component({
   selector: 'app-admin-dashboard',
   templateUrl: './admin-dashboard.page.html',
   styleUrls: ['./admin-dashboard.page.scss'],
   imports: [
     RouterLink,
-    Router,
     IonContent,
     IonHeader,
     IonToolbar,

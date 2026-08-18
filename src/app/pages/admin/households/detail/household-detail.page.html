@@ -1,0 +1,65 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/admin/households"></ion-back-button>
+    </ion-buttons>
+    <ion-title>{{ isNew ? 'Add Household' : 'Edit Household' }}</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+
+  <div *ngIf="loading">
+    <p>Loading...</p>
+  </div>
+
+  <div *ngIf="!loading">
+
+    <ion-item>
+      <ion-label position="stacked">Household Number</ion-label>
+      <ion-input [(ngModel)]="householdNumber" type="text" placeholder="e.g. HH-0002"></ion-input>
+    </ion-item>
+
+    <ion-item>
+      <ion-label position="stacked">House Number</ion-label>
+      <ion-input [(ngModel)]="houseNumber" type="text"></ion-input>
+    </ion-item>
+
+    <ion-item>
+      <ion-label position="stacked">Street</ion-label>
+      <ion-input [(ngModel)]="street" type="text"></ion-input>
+    </ion-item>
+
+    <ion-item>
+      <ion-label position="stacked">Purok</ion-label>
+      <ion-input [(ngModel)]="purok" type="text"></ion-input>
+    </ion-item>
+
+    <ion-item>
+      <ion-label position="stacked">Barangay</ion-label>
+      <ion-input [(ngModel)]="barangay" type="text"></ion-input>
+    </ion-item>
+
+    <ion-item>
+      <ion-label position="stacked">Municipality</ion-label>
+      <ion-input [(ngModel)]="municipality" type="text"></ion-input>
+    </ion-item>
+
+    <ion-item>
+      <ion-label position="stacked">Province</ion-label>
+      <ion-input [(ngModel)]="province" type="text"></ion-input>
+    </ion-item>
+
+    <ion-button
+      expand="block"
+      [disabled]="saving"
+      (click)="save()">
+      {{ saving ? 'Saving...' : (isNew ? 'Create Household' : 'Save Changes') }}
+    </ion-button>
+
+    <p class="error" *ngIf="saveError">{{ saveError }}</p>
+    <p class="success" *ngIf="saveSuccess">Saved successfully.</p>
+
+  </div>
+
+</ion-content>
