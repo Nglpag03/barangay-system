@@ -22,7 +22,7 @@ import { DocumentService } from '../../../core/services/document.service';
 import { ResidentService } from '../../../core/services/resident.service';
 import { ResidentDocument } from '../../../core/model/document.model';
 import { Resident } from '../../../core/model/resident.model';
-
+import { AuditLogService } from '../../../core/services/audit-log.service';
 @Component({
   selector: 'app-admin-documents',
   templateUrl: './documents.page.html',
@@ -63,7 +63,8 @@ export class AdminDocumentsPage implements OnInit {
 
   constructor(
     private readonly documentService: DocumentService,
-    private readonly residentService: ResidentService
+    private readonly residentService: ResidentService,
+    private readonly auditLogService: AuditLogService
   ) {}
 
   async ngOnInit() {
@@ -88,34 +89,39 @@ export class AdminDocumentsPage implements OnInit {
     this.selectedFile = file;
   }
 
-  async upload() {
-    if (!this.selectedResidentId || !this.documentType || !this.selectedFile) {
-      this.uploadError = 'Please select a resident, document type, and file.';
-      return;
-    }
-
-    this.uploading = true;
-    this.uploadError = null;
-
-    const created = await this.documentService.uploadDocumentForResident(
-      this.selectedResidentId,
-      this.selectedFile,
-      this.documentType,
-      this.documentNumber || null,
-      null
-    );
-
-    this.uploading = false;
-
-    if (!created) {
-      this.uploadError = 'Something went wrong while uploading. Please try again.';
-      return;
-    }
-
-    this.documents = [created, ...this.documents];
-    this.selectedResidentId = null;
-    this.documentType = '';
-    this.documentNumber = '';
-    this.selectedFile = null;
+async upload() {
+  if (!this.selectedResidentId || !this.documentType || !this.selectedFile) {
+    this.uploadError = 'Please select a resident, document type, and file.';
+    return;
   }
+
+  this.uploading = true;
+  this.uploadError = null;
+
+  const created = await this.documentService.uploadDocumentForResident(
+    this.selectedResidentId,
+    this.selectedFile,
+    this.documentType,
+    this.documentNumber || null,
+    null
+  );
+
+  this.uploading = false;
+
+  if (!created) {
+    this.uploadError = 'Something went wrong while uploading. Please try again.';
+    return;
+  }
+
+  await this.auditLogService.logAction('uploaded', 'document', created.id, {
+    document_type: created.document_type,
+    resident_id: created.resident_id
+  });
+
+  this.documents = [created, ...this.documents];
+  this.selectedResidentId = null;
+  this.documentType = '';
+  this.documentNumber = '';
+  this.selectedFile = null;
+}
 }

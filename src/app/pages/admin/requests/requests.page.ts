@@ -22,7 +22,7 @@ import { RequestService } from '../../../core/services/request.service';
 import { ResidentService } from '../../../core/services/resident.service';
 import { ResidentRequest, RequestStatus } from '../../../core/model/request.model';
 import { Resident } from '../../../core/model/resident.model';
-
+import { AuditLogService } from '../../../core/services/audit-log.service';
 @Component({
   selector: 'app-admin-requests',
   templateUrl: './requests.page.html',
@@ -59,7 +59,8 @@ export class AdminRequestsPage implements OnInit {
 
   constructor(
     private readonly requestService: RequestService,
-    private readonly residentService: ResidentService
+    private readonly residentService: ResidentService,
+    private readonly auditLogService: AuditLogService
   ) {}
 
   async ngOnInit() {
@@ -84,25 +85,30 @@ export class AdminRequestsPage implements OnInit {
     return resident ? `${resident.first_name} ${resident.last_name}` : 'Unknown Resident';
   }
 
-  async updateStatus(request: ResidentRequest) {
-    this.savingId = request.id;
+async updateStatus(request: ResidentRequest) {
+  this.savingId = request.id;
 
-    const newStatus = this.statusDrafts[request.id];
-    const newRemarks = this.remarksDrafts[request.id] || null;
+  const newStatus = this.statusDrafts[request.id];
+  const newRemarks = this.remarksDrafts[request.id] || null;
 
-    const updated = await this.requestService.updateRequestStatus(
-      request.id,
-      newStatus,
-      newRemarks
-    );
+  const updated = await this.requestService.updateRequestStatus(
+    request.id,
+    newStatus,
+    newRemarks
+  );
 
-    this.savingId = null;
+  this.savingId = null;
 
-    if (updated) {
-      const index = this.requests.findIndex((r) => r.id === request.id);
-      if (index !== -1) {
-        this.requests[index] = updated;
-      }
+  if (updated) {
+    const index = this.requests.findIndex((r) => r.id === request.id);
+    if (index !== -1) {
+      this.requests[index] = updated;
     }
+
+    await this.auditLogService.logAction('status_changed', 'request', updated.id, {
+      request_type: updated.request_type,
+      new_status: updated.status
+    });
   }
+}
 }

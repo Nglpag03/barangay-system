@@ -107,6 +107,13 @@ export const routes: Routes = [
     import('./pages/user/documents/documents.page')
       .then((m) => m.UserDocumentsPage),
 },
+{
+  path: 'admin/audit-logs',
+  canActivate: [authGuard, adminGuard],
+  loadComponent: () =>
+    import('./pages/admin/audit-logs/audit-logs.page')
+      .then((m) => m.AdminAuditLogsPage),
+},
 
 {
   path: 'user/dashboard',

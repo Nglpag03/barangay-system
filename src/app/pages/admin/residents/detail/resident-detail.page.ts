@@ -22,7 +22,7 @@ import { ResidentService } from '../../../../core/services/resident.service';
 import { HouseholdService } from '../../../../core/services/household.service';
 import { Resident, Sex, CivilStatus } from '../../../../core/model/resident.model';
 import { Household } from '../../../../core/model/household.model';
-
+import { AuditLogService } from '../../../../core/services/audit-log.service';
 @Component({
   selector: 'app-resident-detail',
   templateUrl: './resident-detail.page.html',
@@ -76,7 +76,8 @@ export class ResidentDetailPage implements OnInit {
     private readonly route: ActivatedRoute,
     private readonly router: Router,
     private readonly residentService: ResidentService,
-    private readonly householdService: HouseholdService
+    private readonly householdService: HouseholdService,
+    private readonly auditLogService: AuditLogService
   ) {}
 
   async ngOnInit() {
@@ -112,59 +113,69 @@ export class ResidentDetailPage implements OnInit {
     this.loading = false;
   }
 
-  async save() {
-    this.saving = true;
-    this.saveError = null;
-    this.saveSuccess = false;
+async save() {
+  this.saving = true;
+  this.saveError = null;
+  this.saveSuccess = false;
 
-    const payload = {
-      resident_number: this.residentNumber,
-      first_name: this.firstName,
-      middle_name: this.middleName || null,
-      last_name: this.lastName,
-      suffix: this.suffix || null,
-      birth_date: this.birthDate,
-      birth_place: this.birthPlace || null,
-      sex: this.sex,
-      civil_status: this.civilStatus,
-      contact_number: this.contactNumber || null,
-      occupation: this.occupation || null,
-      is_active: this.isActive,
-      household_id: this.householdId
-    };
+  const payload = {
+    resident_number: this.residentNumber,
+    first_name: this.firstName,
+    middle_name: this.middleName || null,
+    last_name: this.lastName,
+    suffix: this.suffix || null,
+    birth_date: this.birthDate,
+    birth_place: this.birthPlace || null,
+    sex: this.sex,
+    civil_status: this.civilStatus,
+    contact_number: this.contactNumber || null,
+    occupation: this.occupation || null,
+    is_active: this.isActive,
+    household_id: this.householdId
+  };
 
-    if (this.isNew) {
-      const created = await this.residentService.createResident({
-        ...payload,
-        profile_id: null
-      });
-
-      this.saving = false;
-
-      if (!created) {
-        this.saveError = 'Something went wrong while creating the resident.';
-        return;
-      }
-
-      this.router.navigate(['/admin/residents', created.id]);
-      return;
-    }
-
-    if (!this.residentId) {
-      this.saving = false;
-      return;
-    }
-
-    const updated = await this.residentService.updateResidentAsAdmin(this.residentId, payload);
+  if (this.isNew) {
+    const created = await this.residentService.createResident({
+      ...payload,
+      profile_id: null
+    });
 
     this.saving = false;
 
-    if (!updated) {
-      this.saveError = 'Something went wrong while saving.';
+    if (!created) {
+      this.saveError = 'Something went wrong while creating the resident.';
       return;
     }
 
-    this.resident = updated;
-    this.saveSuccess = true;
+    await this.auditLogService.logAction('created', 'resident', created.id, {
+      resident_number: created.resident_number,
+      name: `${created.first_name} ${created.last_name}`
+    });
+
+    this.router.navigate(['/admin/residents', created.id]);
+    return;
   }
+
+  if (!this.residentId) {
+    this.saving = false;
+    return;
+  }
+
+  const updated = await this.residentService.updateResidentAsAdmin(this.residentId, payload);
+
+  this.saving = false;
+
+  if (!updated) {
+    this.saveError = 'Something went wrong while saving.';
+    return;
+  }
+
+  await this.auditLogService.logAction('updated', 'resident', updated.id, {
+    resident_number: updated.resident_number,
+    name: `${updated.first_name} ${updated.last_name}`
+  });
+
+  this.resident = updated;
+  this.saveSuccess = true;
+}
 }

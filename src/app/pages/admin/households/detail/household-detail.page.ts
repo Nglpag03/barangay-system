@@ -17,7 +17,7 @@ import {
 
 import { HouseholdService } from '../../../../core/services/household.service';
 import { Household } from '../../../../core/model/household.model';
-
+import { AuditLogService } from '../../../../core/services/audit-log.service';
 @Component({
   selector: 'app-household-detail',
   templateUrl: './household-detail.page.html',
@@ -59,7 +59,8 @@ export class HouseholdDetailPage implements OnInit {
   constructor(
     private readonly route: ActivatedRoute,
     private readonly router: Router,
-    private readonly householdService: HouseholdService
+    private readonly householdService: HouseholdService,
+    private readonly auditLogService: AuditLogService
   ) {}
 
   async ngOnInit() {
@@ -88,50 +89,57 @@ export class HouseholdDetailPage implements OnInit {
     this.loading = false;
   }
 
-  async save() {
-    this.saving = true;
-    this.saveError = null;
-    this.saveSuccess = false;
+ async save() {
+  this.saving = true;
+  this.saveError = null;
+  this.saveSuccess = false;
 
-    const payload = {
-      household_number: this.householdNumber,
-      house_number: this.houseNumber || null,
-      street: this.street || null,
-      purok: this.purok,
-      barangay: this.barangay,
-      municipality: this.municipality,
-      province: this.province
-    };
+  const payload = {
+    household_number: this.householdNumber,
+    house_number: this.houseNumber || null,
+    street: this.street || null,
+    purok: this.purok,
+    barangay: this.barangay,
+    municipality: this.municipality,
+    province: this.province
+  };
 
-    if (this.isNew) {
-      const created = await this.householdService.createHousehold(payload);
-
-      this.saving = false;
-
-      if (!created) {
-        this.saveError = 'Something went wrong while creating the household.';
-        return;
-      }
-
-      // Redirect to the new household's own detail page after creation
-      this.router.navigate(['/admin/households', created.id]);
-      return;
-    }
-
-    if (!this.householdId) {
-      this.saving = false;
-      return;
-    }
-
-    const updated = await this.householdService.updateHousehold(this.householdId, payload);
+  if (this.isNew) {
+    const created = await this.householdService.createHousehold(payload);
 
     this.saving = false;
 
-    if (!updated) {
-      this.saveError = 'Something went wrong while saving.';
+    if (!created) {
+      this.saveError = 'Something went wrong while creating the household.';
       return;
     }
 
-    this.saveSuccess = true;
+    await this.auditLogService.logAction('created', 'household', created.id, {
+      household_number: created.household_number
+    });
+
+    this.router.navigate(['/admin/households', created.id]);
+    return;
   }
+
+  if (!this.householdId) {
+    this.saving = false;
+    return;
+  }
+
+  const updated = await this.householdService.updateHousehold(this.householdId, payload);
+
+  this.saving = false;
+
+  if (!updated) {
+    this.saveError = 'Something went wrong while saving.';
+    return;
+  }
+
+  await this.auditLogService.logAction('updated', 'household', updated.id, {
+    household_number: updated.household_number
+  });
+
+  this.saveSuccess = true;
+}
 }

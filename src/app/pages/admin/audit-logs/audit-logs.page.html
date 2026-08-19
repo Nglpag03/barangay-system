@@ -1,0 +1,31 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/admin/dashboard"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Audit Logs</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+
+  <div *ngIf="loading">
+    <p>Loading audit logs...</p>
+  </div>
+
+  <div *ngIf="!loading && logs.length === 0">
+    <p>No audit logs yet.</p>
+  </div>
+
+  <ion-list *ngIf="!loading && logs.length > 0">
+    <ion-item *ngFor="let log of logs">
+      <ion-label>
+        <h2>{{ log.action }} — {{ log.entity_type }}</h2>
+        <p>{{ log.created_at | date:'medium' }}</p>
+        <p>Actor (user id): {{ log.user_id }}</p>
+        <p *ngIf="log.metadata">{{ log.metadata | json }}</p>
+      </ion-label>
+    </ion-item>
+  </ion-list>
+
+</ion-content>
