@@ -51,4 +51,8 @@ export class UserRequestsPage implements OnInit {
     this.requests = await this.requestService.getMyRequests();
     this.loading = false;
   }
+
+  async refreshRequests() {
+    this.requests = await this.requestService.getMyRequests();
+  }
 }

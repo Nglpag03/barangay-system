@@ -14,12 +14,6 @@ export class ResidentService {
     private readonly authService: AuthService
   ) {}
 
-  /**
-   * Fetches the resident record linked to the currently logged-in user.
-   * Relies on RLS policy: residents.profile_id = auth.uid()
-   * so this will only ever return the caller's own row, even if
-   * someone tampers with the query client-side.
-   */
   async getMyResidentRecord(): Promise<Resident | null> {
     const user = await this.authService.getUser();
 
@@ -40,106 +34,107 @@ export class ResidentService {
 
     return data as Resident | null;
   }
-  async updateMyResidentRecord(updates: Partial<Pick<Resident, 'contact_number' | 'occupation'>>): Promise<Resident | null> {
-  const user = await this.authService.getUser();
 
-  if (!user) {
-    return null;
-  }
-
-  const { data, error } = await this.supabaseService.client
-    .from('residents')
-    .update(updates)
-    .eq('profile_id', user.id)
-    .select()
-    .maybeSingle();
-
-  if (error) {
-    console.error('Error updating resident record:', error);
-    return null;
-  }
-
-  return data as Resident | null;
-}
   async getMyHousehold(): Promise<Household | null> {
-  const resident = await this.getMyResidentRecord();
+    const resident = await this.getMyResidentRecord();
 
-  if (!resident || !resident.household_id) {
-    return null;
+    if (!resident || !resident.household_id) {
+      return null;
+    }
+
+    const { data, error } = await this.supabaseService.client
+      .from('households')
+      .select('*')
+      .eq('id', resident.household_id)
+      .maybeSingle();
+
+    if (error) {
+      console.error('Error fetching household:', error);
+      return null;
+    }
+
+    return data as Household | null;
   }
 
-  const { data, error } = await this.supabaseService.client
-    .from('households')
-    .select('*')
-    .eq('id', resident.household_id)
-    .maybeSingle();
+  async updateMyResidentRecord(updates: Partial<Pick<Resident, 'contact_number' | 'occupation'>>): Promise<Resident | null> {
+    const user = await this.authService.getUser();
 
-  if (error) {
-    console.error('Error fetching household:', error);
-    return null;
+    if (!user) {
+      return null;
+    }
+
+    const { data, error } = await this.supabaseService.client
+      .from('residents')
+      .update(updates)
+      .eq('profile_id', user.id)
+      .select()
+      .maybeSingle();
+
+    if (error) {
+      console.error('Error updating resident record:', error);
+      return null;
+    }
+
+    return data as Resident | null;
   }
-
-  return data as Household | null;
-}
 
   async getAllResidents(): Promise<Resident[]> {
-  const { data, error } = await this.supabaseService.client
-    .from('residents')
-    .select('*')
-    .order('last_name', { ascending: true });
+    const { data, error } = await this.supabaseService.client
+      .from('residents')
+      .select('*')
+      .order('last_name', { ascending: true });
 
-  if (error) {
-    console.error('Error fetching all residents:', error);
-    return [];
+    if (error) {
+      console.error('Error fetching all residents:', error);
+      return [];
+    }
+
+    return data as Resident[];
   }
 
-  return data as Resident[];
-}
+  async getResidentById(id: string): Promise<Resident | null> {
+    const { data, error } = await this.supabaseService.client
+      .from('residents')
+      .select('*')
+      .eq('id', id)
+      .maybeSingle();
 
-async getResidentById(id: string): Promise<Resident | null> {
-  const { data, error } = await this.supabaseService.client
-    .from('residents')
-    .select('*')
-    .eq('id', id)
-    .maybeSingle();
+    if (error) {
+      console.error('Error fetching resident by id:', error);
+      return null;
+    }
 
-  if (error) {
-    console.error('Error fetching resident by id:', error);
-    return null;
+    return data as Resident | null;
   }
 
-  return data as Resident | null;
-}
+  async updateResidentAsAdmin(id: string, updates: Partial<Resident>): Promise<Resident | null> {
+    const { data, error } = await this.supabaseService.client
+      .from('residents')
+      .update(updates)
+      .eq('id', id)
+      .select()
+      .maybeSingle();
 
-async updateResidentAsAdmin(id: string, updates: Partial<Resident>): Promise<Resident | null> {
-  const { data, error } = await this.supabaseService.client
-    .from('residents')
-    .update(updates)
-    .eq('id', id)
-    .select()
-    .maybeSingle();
+    if (error) {
+      console.error('Error updating resident as admin:', error);
+      return null;
+    }
 
-  if (error) {
-    console.error('Error updating resident as admin:', error);
-    return null;
+    return data as Resident | null;
   }
 
-  return data as Resident | null;
-}
+  async createResident(resident: Omit<Resident, 'id' | 'created_at' | 'updated_at'>): Promise<Resident | null> {
+    const { data, error } = await this.supabaseService.client
+      .from('residents')
+      .insert(resident)
+      .select()
+      .maybeSingle();
 
-async createResident(resident: Omit<Resident, 'id' | 'created_at' | 'updated_at'>): Promise<Resident | null> {
-  const { data, error } = await this.supabaseService.client
-    .from('residents')
-    .insert(resident)
-    .select()
-    .maybeSingle();
+    if (error) {
+      console.error('Error creating resident:', error);
+      return null;
+    }
 
-  if (error) {
-    console.error('Error creating resident:', error);
-    return null;
+    return data as Resident | null;
   }
-
-  return data as Resident | null;
-}
-
 }

@@ -1,55 +1,212 @@
-<ion-header>
-  <ion-toolbar>
-    <ion-title>Admin Dashboard</ion-title>
-  </ion-toolbar>
-</ion-header>
+<div class="app-shell">
 
-<ion-content class="ion-padding">
+  <!-- SIDEBAR -->
+  <aside class="sidebar" [class.collapsed]="isSidebarCollapsed">
 
-  <h1>Welcome, Administrator</h1>
+    <!-- Branding / Logo -->
+    <div class="sidebar-logo">
+      <div class="sidebar-logo-icon">&#9728;</div>
+      <div class="sidebar-logo-text">
+        <span class="sidebar-logo-name">BARANGAY</span>
+        <span class="sidebar-logo-sub">SAN ISIDRO · SYSTEM</span>
+      </div>
+      <button class="sidebar-toggle" (click)="toggleSidebar()" title="Collapse sidebar">
+        <ion-icon name="chevron-back-outline"></ion-icon>
+      </button>
+    </div>
 
-  <p>
-    You are logged in as an Admin.
-  </p>
+    <!-- Navigation -->
+    <nav class="sidebar-nav">
+      @for (item of navItems; track item.path) {
+        <a class="nav-item" [class.active]="item.active" [routerLink]="item.path" [attr.data-label]="item.label">
+          <ion-icon class="nav-icon" [name]="item.icon"></ion-icon>
+          <span class="nav-label">{{ item.label }}</span>
+        </a>
+      }
+    </nav>
 
-<ion-button
-  expand="block"
-  fill="outline"
-  routerLink="/admin/residents">
-  View Residents
-</ion-button>
+    <!-- Admin profile + logout -->
+    <div class="sidebar-profile">
+      <div class="profile-avatar">{{ currentUserName.charAt(0) }}</div>
+      <div class="profile-info">
+        <span class="profile-name">{{ currentUserName }}</span>
+        <span class="profile-role">{{ currentUserRole | uppercase }}</span>
+      </div>
+      <button class="profile-logout" (click)="logout()" title="Logout">
+        <ion-icon name="log-out-outline"></ion-icon>
+      </button>
+    </div>
 
-<ion-button
-  expand="block"
-  fill="outline"
-  routerLink="/admin/households">
-  View Households
-</ion-button>
+  </aside>
 
-<ion-button
-  expand="block"
-  fill="outline"
-  routerLink="/admin/requests">
-  Manage Requests
-</ion-button>
+  <!-- MAIN AREA -->
+  <div class="main-area">
 
-<ion-button
-  expand="block"
-  fill="outline"
-  routerLink="/admin/documents">
-  Manage Documents
-</ion-button>
-<ion-button
-  expand="block"
-  fill="outline"
-  routerLink="/admin/audit-logs">
-  View Audit Logs
-</ion-button>
+    <!-- Topbar -->
+    <ion-header class="ion-no-border">
+      <ion-toolbar>
+        <ion-title>
+          <h1 class="ion-title">Admin Dashboard</h1>
+          <span class="topbar-date">{{ todayDate }}</span>
+        </ion-title>
+        <div class="topbar-right" slot="end">
+          <div class="status-pill" [class.offline]="!isOnline">
+            <span class="status-dot" [class.offline]="!isOnline"></span>
+            {{ isOnline ? 'SYSTEM ONLINE' : 'OFFLINE MODE' }}
+          </div>
+        </div>
+      </ion-toolbar>
+    </ion-header>
 
-<ion-button
-  expand="block"
-  (click)="logout()">
-  Logout
-</ion-button>
+    <!-- Content -->
+    <ion-content class="ion-padding">
+      
+      <!-- Pull to refresh -->
+      <ion-refresher slot="fixed" (ionRefresh)="refreshData($event)">
+        <ion-refresher-content></ion-refresher-content>
+      </ion-refresher>
 
-</ion-content>
+      <!-- Offline Banner -->
+      @if (!isOnline) {
+        <div class="offline-banner">
+          <ion-icon name="alert-circle-outline"></ion-icon>
+          <span>You are offline. Showing cached data. Changes will sync when you reconnect.</span>
+        </div>
+      }
+
+      <!-- Loading Spinner -->
+      @if (isLoading && !isRefreshing) {
+        <div class="loading-container">
+          <ion-spinner name="crescent"></ion-spinner>
+          <p>Loading dashboard data...</p>
+        </div>
+      }
+
+      <!-- Dashboard Content -->
+      @if (!isLoading || isRefreshing) {
+
+        <!-- Stats row -->
+        <div class="stats-row">
+          @for (stat of stats; track stat.label) {
+            <div class="stat-card">
+              <span class="stat-label">{{ stat.label }}</span>
+              <span class="stat-value" 
+                    [class.gold]="stat.color === 'gold'" 
+                    [class.green]="stat.color === 'green'" 
+                    [class.red]="stat.color === 'red'">
+                {{ stat.value }}
+              </span>
+              <span class="stat-delta">{{ stat.delta }}</span>
+            </div>
+          }
+        </div>
+
+        <!-- Two-column content -->
+        <div class="content-grid">
+
+          <!-- Requests table -->
+          <div class="card">
+            <div class="card-header">
+              <span class="card-title">Recent Requests</span>
+              <button class="card-action" routerLink="/admin/requests">VIEW ALL &rarr;</button>
+            </div>
+            
+            @if (recentRequests.length === 0) {
+              <div class="empty-state">
+                <p>No recent requests</p>
+              </div>
+            } @else {
+              <table class="requests-table">
+                <thead>
+                  <tr>
+                    <th>REQUEST ID</th>
+                    <th>RESIDENT</th>
+                    <th>TYPE</th>
+                    <th>DATE</th>
+                    <th>STATUS</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (request of recentRequests; track request.id) {
+                    <tr (click)="onRequestClick(request)">
+                      <td class="mono gold">{{ request.id }}</td>
+                      <td class="bold">{{ request.residentName }}</td>
+                      <td class="muted">{{ request.type }}</td>
+                      <td class="mono muted-sm">{{ formatDate(request.date) }}</td>
+                      <td>
+                        <span class="badge" 
+                              [class.pending]="request.status === 'pending'" 
+                              [class.processing]="request.status === 'processing'"
+                              [class.approved]="request.status === 'approved'" 
+                              [class.rejected]="request.status === 'rejected'"
+                              [class.completed]="request.status === 'completed'">
+                          {{ request.status | uppercase }}
+                        </span>
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            }
+          </div>
+
+          <!-- Right column -->
+          <div class="right-col">
+
+            <!-- Quick Actions -->
+            <div class="card">
+              <div class="card-header">
+                <span class="card-title">Quick Actions</span>
+              </div>
+              <div class="quick-actions">
+                @for (action of quickActions; track action.path) {
+                  <a class="quick-btn" [routerLink]="action.path">
+                    <div class="quick-btn-icon" 
+                         [class.gold-icon]="action.color === 'gold'" 
+                         [class.green-icon]="action.color === 'green'" 
+                         [class.blue-icon]="action.color === 'blue'">
+                      <ion-icon [name]="action.icon"></ion-icon>
+                    </div>
+                    <span>{{ action.label }}</span>
+                    <span class="quick-arrow">&rarr;</span>
+                  </a>
+                }
+              </div>
+            </div>
+
+            <!-- Health index card -->
+            <div class="card health-card">
+              <span class="health-label">BARANGAY HEALTH INDEX</span>
+              <span class="health-value">{{ healthIndex }}%</span>
+              <span class="health-desc">Record completeness this quarter</span>
+              <div class="health-watermark">
+                <ion-icon name="clipboard-outline"></ion-icon>
+              </div>
+            </div>
+
+          </div><!-- /.right-col -->
+        </div><!-- /.content-grid -->
+
+        <!-- Welcome block -->
+        <div class="welcome-row">
+          <div class="welcome-banner">
+            <div class="welcome-avatar">{{ currentUserName.charAt(0) }}</div>
+            <div>
+              <h1 class="welcome-heading">Welcome, {{ currentUserName }}</h1>
+              <p class="welcome-sub">You are logged in as an <span class="role-badge">{{ currentUserRole }}</span></p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Footer stamp -->
+        <div class="footer-stamp">
+          <div class="footer-line"></div>
+          <span>REPUBLIKA NG PILIPINAS &middot; BARANGAY SAN ISIDRO</span>
+          <div class="footer-line"></div>
+        </div>
+
+      } <!-- End dashboard content -->
+
+    </ion-content>
+  </div><!-- /.main-area -->
+</div><!-- /.app-shell -->

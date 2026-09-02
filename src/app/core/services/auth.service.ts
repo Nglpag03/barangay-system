@@ -59,31 +59,27 @@ export class AuthService {
     );
   }
 
-async getCurrentProfile() {
-  const user = await this.getUser();
+  async getCurrentProfile() {
+    const user = await this.getUser();
 
-  console.log('AUTH USER:', user);
-  console.log('AUTH USER ID:', user?.id);
+    if (!user) {
+      return null;
+    }
 
-  if (!user) {
-    console.error('No authenticated user found.');
-    return null;
+    const { data, error } = await this.supabaseService.client
+      .from('profiles')
+      .select('id, role, full_name, is_active')
+      .eq('id', user.id)
+      .maybeSingle();
+
+    console.log('PROFILE QUERY DATA:', data);
+    console.log('PROFILE QUERY ERROR:', error);
+
+    if (error) {
+      console.error('Error getting profile:', error);
+      return null;
+    }
+
+    return data;
   }
-
-  const { data, error } = await this.supabaseService.client
-    .from('profiles')
-    .select('id, role, full_name, is_active')
-    .eq('id', user.id)
-    .maybeSingle();
-
-  console.log('PROFILE QUERY DATA:', data);
-  console.log('PROFILE QUERY ERROR:', error);
-
-  if (error) {
-    console.error('Error getting profile:', error);
-    return null;
-  }
-
-  return data;
-}
 }

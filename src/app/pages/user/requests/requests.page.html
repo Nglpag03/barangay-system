@@ -8,7 +8,6 @@
 </ion-header>
 
 <ion-content class="ion-padding">
-
   <ion-button
     expand="block"
     routerLink="/user/requests/new">
@@ -31,9 +30,9 @@
         <p>Requested: {{ request.requested_at | date:'medium' }}</p>
         <p *ngIf="request.remarks">Remarks: {{ request.remarks }}</p>
       </ion-label>
-      <ion-badge slot="end" [color]="request.status === 'approved' || request.status === 'completed' ? 'success' : (request.status === 'rejected' ? 'danger' : 'warning')">
-        {{ request.status }}
-      </ion-badge>
+<ion-badge slot="end" [color]="request.status === 'approved' || request.status === 'completed' ? 'success' : (request.status === 'rejected' ? 'danger' : 'warning')">
+  {{ request.status }}
+</ion-badge>
     </ion-item>
   </ion-list>
 

@@ -15,10 +15,6 @@ export class RequestService {
     private readonly residentService: ResidentService
   ) {}
 
-  /**
-   * Creates a new request on behalf of the currently logged-in resident.
-   * Relies on RLS policy: resident_id in (select id from residents where profile_id = auth.uid())
-   */
   async createRequest(requestType: string, purpose: string | null): Promise<ResidentRequest | null> {
     const resident = await this.residentService.getMyResidentRecord();
 
@@ -45,10 +41,6 @@ export class RequestService {
     return data as ResidentRequest | null;
   }
 
-  /**
-   * Fetches all requests belonging to the currently logged-in resident.
-   * Relies on RLS policy: "Residents can view their own requests"
-   */
   async getMyRequests(): Promise<ResidentRequest[]> {
     const resident = await this.residentService.getMyResidentRecord();
 
@@ -70,10 +62,6 @@ export class RequestService {
     return data as ResidentRequest[];
   }
 
-  /**
-   * Admin-only: fetches every request across all residents.
-   * Relies on RLS policy: "Admins can manage requests"
-   */
   async getAllRequests(): Promise<ResidentRequest[]> {
     const { data, error } = await this.supabaseService.client
       .from('requests')
@@ -88,9 +76,6 @@ export class RequestService {
     return data as ResidentRequest[];
   }
 
-  /**
-   * Admin-only: updates a request's status, remarks, and marks who processed it.
-   */
   async updateRequestStatus(
     id: string,
     status: RequestStatus,

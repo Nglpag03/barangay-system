@@ -22,4 +22,5 @@ export interface ResidentRequest {
   processed_by: string | null; // uuid, admin's profile id who handled this — no enforced FK, set manually
   requested_at: string; // timestamptz, ISO 8601 string
   processed_at: string | null; // timestamptz, ISO 8601 string, null until an admin acts on it
+  isPendingSync?: boolean;
 }

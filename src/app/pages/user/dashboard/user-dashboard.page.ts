@@ -10,11 +10,10 @@ import {
 
 import { AuthService } from '../../../core/services/auth.service';
 import { ResidentService } from '../../../core/services/resident.service';
-import { RequestService } from '../../../core/services/request.service';
 import { Resident } from '../../../core/model/resident.model';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
-import { DocumentService } from '../../../core/services/document.service';
+
 @Component({
   selector: 'app-user-dashboard',
   templateUrl: './user-dashboard.page.html',
@@ -37,16 +36,12 @@ export class UserDashboardPage implements OnInit {
   constructor(
     private readonly authService: AuthService,
     private readonly residentService: ResidentService,
-    private readonly router: Router,
-    private readonly documentService: DocumentService,
+    private readonly router: Router
   ) {}
 
   async ngOnInit() {
     this.resident = await this.residentService.getMyResidentRecord();
     this.loading = false;
-
-    const allDocuments = await this.documentService.getAllDocuments();
-    console.log('ALL DOCUMENTS (should only show my own):', allDocuments);
   }
 
   async logout() {
