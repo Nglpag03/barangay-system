@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { ViewWillEnter } from '@ionic/angular';
 import {
   IonContent,
   IonHeader,
@@ -46,7 +47,7 @@ import { AuditLogService } from '../../../core/services/audit-log.service';
     IonBadge
   ]
 })
-export class AdminDocumentsPage implements OnInit {
+export class AdminDocumentsPage implements OnInit, ViewWillEnter {
 
   documents: ResidentDocument[] = [];
   residents: Resident[] = [];
@@ -68,6 +69,16 @@ export class AdminDocumentsPage implements OnInit {
   ) {}
 
   async ngOnInit() {
+    await this.loadData();
+  }
+
+  async ionViewWillEnter() {
+    await this.loadData();
+  }
+
+  private async loadData() {
+    this.loading = true;
+
     const [documents, residents] = await Promise.all([
       this.documentService.getAllDocuments(),
       this.residentService.getAllResidents()
@@ -89,39 +100,39 @@ export class AdminDocumentsPage implements OnInit {
     this.selectedFile = file;
   }
 
-async upload() {
-  if (!this.selectedResidentId || !this.documentType || !this.selectedFile) {
-    this.uploadError = 'Please select a resident, document type, and file.';
-    return;
+  async upload() {
+    if (!this.selectedResidentId || !this.documentType || !this.selectedFile) {
+      this.uploadError = 'Please select a resident, document type, and file.';
+      return;
+    }
+
+    this.uploading = true;
+    this.uploadError = null;
+
+    const created = await this.documentService.uploadDocumentForResident(
+      this.selectedResidentId,
+      this.selectedFile,
+      this.documentType,
+      this.documentNumber || null,
+      null
+    );
+
+    this.uploading = false;
+
+    if (!created) {
+      this.uploadError = 'Something went wrong while uploading. Please try again.';
+      return;
+    }
+
+    await this.auditLogService.logAction('uploaded', 'document', created.id, {
+      document_type: created.document_type,
+      resident_id: created.resident_id
+    });
+
+    this.documents = [created, ...this.documents];
+    this.selectedResidentId = null;
+    this.documentType = '';
+    this.documentNumber = '';
+    this.selectedFile = null;
   }
-
-  this.uploading = true;
-  this.uploadError = null;
-
-  const created = await this.documentService.uploadDocumentForResident(
-    this.selectedResidentId,
-    this.selectedFile,
-    this.documentType,
-    this.documentNumber || null,
-    null
-  );
-
-  this.uploading = false;
-
-  if (!created) {
-    this.uploadError = 'Something went wrong while uploading. Please try again.';
-    return;
-  }
-
-  await this.auditLogService.logAction('uploaded', 'document', created.id, {
-    document_type: created.document_type,
-    resident_id: created.resident_id
-  });
-
-  this.documents = [created, ...this.documents];
-  this.selectedResidentId = null;
-  this.documentType = '';
-  this.documentNumber = '';
-  this.selectedFile = null;
-}
 }

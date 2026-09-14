@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
+import { ViewWillEnter } from '@ionic/angular';
 import {
   IonContent,
   IonHeader,
@@ -36,7 +37,7 @@ import { Household } from '../../../core/model/household.model';
     IonButton
   ]
 })
-export class HouseholdsPage implements OnInit {
+export class HouseholdsPage implements OnInit, ViewWillEnter {
 
   households: Household[] = [];
   loading = true;
@@ -46,6 +47,15 @@ export class HouseholdsPage implements OnInit {
   ) {}
 
   async ngOnInit() {
+    await this.loadHouseholds();
+  }
+
+  async ionViewWillEnter() {
+    await this.loadHouseholds();
+  }
+
+  private async loadHouseholds() {
+    this.loading = true;
     this.households = await this.householdService.getAllHouseholds();
     this.loading = false;
   }

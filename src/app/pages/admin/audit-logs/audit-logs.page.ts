@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { ViewWillEnter } from '@ionic/angular';
 import {
   IonContent,
   IonHeader,
@@ -32,7 +33,7 @@ import { AuditLog } from '../../../core/model/audit-log.model';
     IonButtons
   ]
 })
-export class AdminAuditLogsPage implements OnInit {
+export class AdminAuditLogsPage implements OnInit, ViewWillEnter {
 
   logs: AuditLog[] = [];
   loading = true;
@@ -42,6 +43,15 @@ export class AdminAuditLogsPage implements OnInit {
   ) {}
 
   async ngOnInit() {
+    await this.loadLogs();
+  }
+
+  async ionViewWillEnter() {
+    await this.loadLogs();
+  }
+
+  private async loadLogs() {
+    this.loading = true;
     this.logs = await this.auditLogService.getAllLogs();
     this.loading = false;
   }

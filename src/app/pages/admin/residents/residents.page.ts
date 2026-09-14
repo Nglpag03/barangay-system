@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { ViewWillEnter } from '@ionic/angular';
 import {
   IonContent,
   IonHeader,
@@ -37,7 +38,7 @@ import { RouterLink } from '@angular/router';
     IonSearchbar
   ]
 })
-export class ResidentsPage implements OnInit {
+export class ResidentsPage implements OnInit, ViewWillEnter {
 
   residents: Resident[] = [];
   filteredResidents: Resident[] = [];
@@ -48,26 +49,35 @@ export class ResidentsPage implements OnInit {
     private readonly residentService: ResidentService
   ) {}
 
-async ngOnInit() {
-  this.residents = await this.residentService.getAllResidents();
-  this.filteredResidents = this.residents;
-  this.loading = false;
-}
-
-  onSearchChange(event: any) {
-  const term = (event.detail.value ?? '').trim().toLowerCase();
-
-  if (!term) {
-    this.filteredResidents = this.residents;
-    return;
+  async ngOnInit() {
+    await this.loadResidents();
   }
 
-  this.filteredResidents = this.residents.filter((resident) => {
-    const fullName = `${resident.first_name} ${resident.middle_name ?? ''} ${resident.last_name}`.toLowerCase();
-    return (
-      fullName.includes(term) ||
-      resident.resident_number.toLowerCase().includes(term)
-    );
-  });
-}
+  async ionViewWillEnter() {
+    await this.loadResidents();
+  }
+
+  private async loadResidents() {
+    this.loading = true;
+    this.residents = await this.residentService.getAllResidents();
+    this.filteredResidents = this.residents;
+    this.loading = false;
+  }
+
+  onSearchChange(event: any) {
+    const term = (event.detail.value ?? '').trim().toLowerCase();
+
+    if (!term) {
+      this.filteredResidents = this.residents;
+      return;
+    }
+
+    this.filteredResidents = this.residents.filter((resident) => {
+      const fullName = `${resident.first_name} ${resident.middle_name ?? ''} ${resident.last_name}`.toLowerCase();
+      return (
+        fullName.includes(term) ||
+        resident.resident_number.toLowerCase().includes(term)
+      );
+    });
+  }
 }

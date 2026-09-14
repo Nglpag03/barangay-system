@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
+import { ViewWillEnter } from '@ionic/angular';
 import {
   IonContent,
   IonHeader,
@@ -38,7 +39,7 @@ import { ResidentRequest } from '../../../core/model/request.model';
     IonBadge
   ]
 })
-export class UserRequestsPage implements OnInit {
+export class UserRequestsPage implements OnInit, ViewWillEnter {
 
   requests: ResidentRequest[] = [];
   loading = true;
@@ -48,11 +49,16 @@ export class UserRequestsPage implements OnInit {
   ) {}
 
   async ngOnInit() {
-    this.requests = await this.requestService.getMyRequests();
-    this.loading = false;
+    await this.loadRequests();
   }
 
-  async refreshRequests() {
+  async ionViewWillEnter() {
+    await this.loadRequests();
+  }
+
+  private async loadRequests() {
+    this.loading = true;
     this.requests = await this.requestService.getMyRequests();
+    this.loading = false;
   }
 }

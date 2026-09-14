@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { ViewWillEnter } from '@ionic/angular';
 import {
   IonContent,
   IonHeader,
@@ -36,7 +37,7 @@ import { ResidentDocument } from '../../../core/model/document.model';
     IonBadge
   ]
 })
-export class UserDocumentsPage implements OnInit {
+export class UserDocumentsPage implements OnInit, ViewWillEnter {
 
   documents: ResidentDocument[] = [];
   loading = true;
@@ -47,6 +48,15 @@ export class UserDocumentsPage implements OnInit {
   ) {}
 
   async ngOnInit() {
+    await this.loadDocuments();
+  }
+
+  async ionViewWillEnter() {
+    await this.loadDocuments();
+  }
+
+  private async loadDocuments() {
+    this.loading = true;
     this.documents = await this.documentService.getMyDocuments();
     this.loading = false;
   }
