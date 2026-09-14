@@ -43,6 +43,7 @@ export class UserRequestsPage implements OnInit, ViewWillEnter {
 
   requests: ResidentRequest[] = [];
   loading = true;
+  loadError = false;
 
   constructor(
     private readonly requestService: RequestService
@@ -56,9 +57,17 @@ export class UserRequestsPage implements OnInit, ViewWillEnter {
     await this.loadRequests();
   }
 
-  private async loadRequests() {
+  async loadRequests() {
     this.loading = true;
-    this.requests = await this.requestService.getMyRequests();
-    this.loading = false;
+    this.loadError = false;
+
+    try {
+      this.requests = await this.requestService.getMyRequests();
+    } catch (err) {
+      console.error('Failed to load requests:', err);
+      this.loadError = true;
+    } finally {
+      this.loading = false;
+    }
   }
 }

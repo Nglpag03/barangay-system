@@ -13,11 +13,18 @@
     <p>Loading your documents...</p>
   </div>
 
-  <div *ngIf="!loading && documents.length === 0">
+  <div *ngIf="!loading && loadError" class="load-error">
+    <p>Couldn't load your documents. Please check your connection and try again.</p>
+    <ion-button expand="block" fill="outline" (click)="loadDocuments()">Retry</ion-button>
+  </div>
+
+  <div *ngIf="!loading && !loadError && documents.length === 0">
     <p>You don't have any documents yet.</p>
   </div>
 
-  <ion-list *ngIf="!loading && documents.length > 0">
+  <p class="error" *ngIf="downloadError">{{ downloadError }}</p>
+
+  <ion-list *ngIf="!loading && !loadError && documents.length > 0">
     <ion-item *ngFor="let doc of documents">
       <ion-label>
         <h2>{{ doc.document_type }}</h2>

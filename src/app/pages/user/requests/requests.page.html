@@ -18,11 +18,16 @@
     <p>Loading your requests...</p>
   </div>
 
-  <div *ngIf="!loading && requests.length === 0">
+  <div *ngIf="!loading && loadError" class="load-error">
+    <p>Couldn't load your requests. Please check your connection and try again.</p>
+    <ion-button expand="block" fill="outline" (click)="loadRequests()">Retry</ion-button>
+  </div>
+
+  <div *ngIf="!loading && !loadError && requests.length === 0">
     <p>You haven't submitted any requests yet.</p>
   </div>
 
-  <ion-list *ngIf="!loading && requests.length > 0">
+  <ion-list *ngIf="!loading && !loadError && requests.length > 0">
     <ion-item *ngFor="let request of requests">
       <ion-label>
         <h2>{{ request.request_type }}</h2>

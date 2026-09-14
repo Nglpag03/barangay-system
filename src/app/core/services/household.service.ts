@@ -19,7 +19,7 @@ export class HouseholdService {
 
     if (error) {
       console.error('Error fetching all households:', error);
-      return [];
+      throw error;
     }
 
     return data as Household[];
@@ -34,7 +34,7 @@ export class HouseholdService {
 
     if (error) {
       console.error('Error fetching household by id:', error);
-      return null;
+      throw error;
     }
 
     return data as Household | null;

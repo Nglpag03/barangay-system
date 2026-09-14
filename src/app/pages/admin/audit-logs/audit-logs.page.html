@@ -13,11 +13,16 @@
     <p>Loading audit logs...</p>
   </div>
 
-  <div *ngIf="!loading && logs.length === 0">
+  <div *ngIf="!loading && loadError" class="load-error">
+    <p>Couldn't load audit logs. Please check your connection and try again.</p>
+    <ion-button expand="block" fill="outline" (click)="loadLogs()">Retry</ion-button>
+  </div>
+
+  <div *ngIf="!loading && !loadError && logs.length === 0">
     <p>No audit logs yet.</p>
   </div>
 
-  <ion-list *ngIf="!loading && logs.length > 0">
+  <ion-list *ngIf="!loading && !loadError && logs.length > 0">
     <ion-item *ngFor="let log of logs">
       <ion-label>
         <h2>{{ log.action }} — {{ log.entity_type }}</h2>

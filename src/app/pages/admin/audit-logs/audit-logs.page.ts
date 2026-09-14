@@ -10,7 +10,8 @@ import {
   IonItem,
   IonLabel,
   IonBackButton,
-  IonButtons
+  IonButtons,
+  IonButton
 } from '@ionic/angular/standalone';
 
 import { AuditLogService } from '../../../core/services/audit-log.service';
@@ -30,13 +31,15 @@ import { AuditLog } from '../../../core/model/audit-log.model';
     IonItem,
     IonLabel,
     IonBackButton,
-    IonButtons
+    IonButtons,
+    IonButton
   ]
 })
 export class AdminAuditLogsPage implements OnInit, ViewWillEnter {
 
   logs: AuditLog[] = [];
   loading = true;
+  loadError = false;
 
   constructor(
     private readonly auditLogService: AuditLogService
@@ -50,9 +53,17 @@ export class AdminAuditLogsPage implements OnInit, ViewWillEnter {
     await this.loadLogs();
   }
 
-  private async loadLogs() {
+  async loadLogs() {
     this.loading = true;
-    this.logs = await this.auditLogService.getAllLogs();
-    this.loading = false;
+    this.loadError = false;
+
+    try {
+      this.logs = await this.auditLogService.getAllLogs();
+    } catch (err) {
+      console.error('Failed to load audit logs:', err);
+      this.loadError = true;
+    } finally {
+      this.loading = false;
+    }
   }
 }

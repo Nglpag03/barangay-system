@@ -29,7 +29,7 @@ export class ResidentService {
 
     if (error) {
       console.error('Error fetching resident record:', error);
-      return null;
+      throw error;
     }
 
     return data as Resident | null;
@@ -50,7 +50,7 @@ export class ResidentService {
 
     if (error) {
       console.error('Error fetching household:', error);
-      return null;
+      throw error;
     }
 
     return data as Household | null;
@@ -86,7 +86,7 @@ export class ResidentService {
 
     if (error) {
       console.error('Error fetching all residents:', error);
-      return [];
+      throw error;
     }
 
     return data as Resident[];
@@ -101,7 +101,7 @@ export class ResidentService {
 
     if (error) {
       console.error('Error fetching resident by id:', error);
-      return null;
+      throw error;
     }
 
     return data as Resident | null;

@@ -12,7 +12,8 @@ import {
   IonLabel,
   IonBackButton,
   IonButtons,
-  IonSearchbar
+  IonSearchbar,
+  IonButton
 } from '@ionic/angular/standalone';
 
 import { ResidentService } from '../../../core/services/resident.service';
@@ -35,7 +36,8 @@ import { RouterLink } from '@angular/router';
     IonLabel,
     IonBackButton,
     IonButtons,
-    IonSearchbar
+    IonSearchbar,
+    IonButton
   ]
 })
 export class ResidentsPage implements OnInit, ViewWillEnter {
@@ -43,6 +45,7 @@ export class ResidentsPage implements OnInit, ViewWillEnter {
   residents: Resident[] = [];
   filteredResidents: Resident[] = [];
   loading = true;
+  loadError = false;
   searchTerm = '';
 
   constructor(
@@ -57,11 +60,19 @@ export class ResidentsPage implements OnInit, ViewWillEnter {
     await this.loadResidents();
   }
 
-  private async loadResidents() {
+  async loadResidents() {
     this.loading = true;
-    this.residents = await this.residentService.getAllResidents();
-    this.filteredResidents = this.residents;
-    this.loading = false;
+    this.loadError = false;
+
+    try {
+      this.residents = await this.residentService.getAllResidents();
+      this.filteredResidents = this.residents;
+    } catch (err) {
+      console.error('Failed to load residents:', err);
+      this.loadError = true;
+    } finally {
+      this.loading = false;
+    }
   }
 
   onSearchChange(event: any) {

@@ -17,10 +17,6 @@ export class DocumentService {
     private readonly residentService: ResidentService
   ) {}
 
-  /**
-   * Admin-only: uploads a file to Storage under {residentId}/{randomId}/{filename},
-   * then creates the matching metadata row in the documents table.
-   */
   async uploadDocumentForResident(
     residentId: string,
     file: File,
@@ -30,7 +26,6 @@ export class DocumentService {
   ): Promise<ResidentDocument | null> {
     const user = await this.authService.getUser();
 
-    // Create the metadata row first so we have an id to use in the file path
     const { data: created, error: insertError } = await this.supabaseService.client
       .from('documents')
       .insert({
@@ -92,7 +87,7 @@ export class DocumentService {
 
     if (error) {
       console.error('Error fetching my documents:', error);
-      return [];
+      throw error;
     }
 
     return data as ResidentDocument[];
@@ -106,16 +101,12 @@ export class DocumentService {
 
     if (error) {
       console.error('Error fetching all documents:', error);
-      return [];
+      throw error;
     }
 
     return data as ResidentDocument[];
   }
 
-  /**
-   * Generates a temporary signed URL to view/download a private file.
-   * Expires after the given number of seconds (default 60).
-   */
   async getDocumentDownloadUrl(filePath: string, expiresInSeconds = 60): Promise<string | null> {
     const { data, error } = await this.supabaseService.client
       .storage

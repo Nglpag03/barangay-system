@@ -41,7 +41,9 @@ export class UserDocumentsPage implements OnInit, ViewWillEnter {
 
   documents: ResidentDocument[] = [];
   loading = true;
+  loadError = false;
   downloadingId: string | null = null;
+  downloadError: string | null = null;
 
   constructor(
     private readonly documentService: DocumentService
@@ -55,10 +57,18 @@ export class UserDocumentsPage implements OnInit, ViewWillEnter {
     await this.loadDocuments();
   }
 
-  private async loadDocuments() {
+  async loadDocuments() {
     this.loading = true;
-    this.documents = await this.documentService.getMyDocuments();
-    this.loading = false;
+    this.loadError = false;
+
+    try {
+      this.documents = await this.documentService.getMyDocuments();
+    } catch (err) {
+      console.error('Failed to load documents:', err);
+      this.loadError = true;
+    } finally {
+      this.loading = false;
+    }
   }
 
   async download(document: ResidentDocument) {
@@ -67,13 +77,17 @@ export class UserDocumentsPage implements OnInit, ViewWillEnter {
     }
 
     this.downloadingId = document.id;
+    this.downloadError = null;
 
     const url = await this.documentService.getDocumentDownloadUrl(document.file_path);
 
     this.downloadingId = null;
 
-    if (url) {
-      window.open(url, '_blank');
+    if (!url) {
+      this.downloadError = 'Could not open this document. Please try again.';
+      return;
     }
+
+    window.open(url, '_blank');
   }
 }

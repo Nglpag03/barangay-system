@@ -35,6 +35,9 @@
       <button class="profile-logout" (click)="logout()" title="Logout">
         <ion-icon name="log-out-outline"></ion-icon>
       </button>
+      <ion-text color="danger" *ngIf="logoutError">
+        <p>{{ logoutError }}</p>
+      </ion-text>
     </div>
 
   </aside>

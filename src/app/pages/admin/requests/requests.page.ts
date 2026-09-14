@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { ViewWillEnter } from '@ionic/angular';
 import {
   IonContent,
   IonHeader,
@@ -46,14 +47,14 @@ import { AuditLogService } from '../../../core/services/audit-log.service';
     IonButton
   ]
 })
-export class AdminRequestsPage implements OnInit {
+export class AdminRequestsPage implements OnInit, ViewWillEnter {
 
   requests: ResidentRequest[] = [];
   residentsById: Map<string, Resident> = new Map();
   loading = true;
+  loadError = false;
   savingId: string | null = null;
 
-  // Local editable state per request, keyed by request id
   statusDrafts: Record<string, RequestStatus> = {};
   remarksDrafts: Record<string, string> = {};
 
@@ -64,20 +65,36 @@ export class AdminRequestsPage implements OnInit {
   ) {}
 
   async ngOnInit() {
-    const [requests, residents] = await Promise.all([
-      this.requestService.getAllRequests(),
-      this.residentService.getAllResidents()
-    ]);
+    await this.loadData();
+  }
 
-    this.requests = requests;
-    this.residentsById = new Map(residents.map((r) => [r.id, r]));
+  async ionViewWillEnter() {
+    await this.loadData();
+  }
 
-    for (const request of requests) {
-      this.statusDrafts[request.id] = request.status;
-      this.remarksDrafts[request.id] = request.remarks ?? '';
+  async loadData() {
+    this.loading = true;
+    this.loadError = false;
+
+    try {
+      const [requests, residents] = await Promise.all([
+        this.requestService.getAllRequests(),
+        this.residentService.getAllResidents()
+      ]);
+
+      this.requests = requests;
+      this.residentsById = new Map(residents.map((r) => [r.id, r]));
+
+      for (const request of requests) {
+        this.statusDrafts[request.id] = request.status;
+        this.remarksDrafts[request.id] = request.remarks ?? '';
+      }
+    } catch (err) {
+      console.error('Failed to load requests:', err);
+      this.loadError = true;
+    } finally {
+      this.loading = false;
     }
-
-    this.loading = false;
   }
 
   getResidentName(residentId: string): string {
@@ -85,30 +102,30 @@ export class AdminRequestsPage implements OnInit {
     return resident ? `${resident.first_name} ${resident.last_name}` : 'Unknown Resident';
   }
 
-async updateStatus(request: ResidentRequest) {
-  this.savingId = request.id;
+  async updateStatus(request: ResidentRequest) {
+    this.savingId = request.id;
 
-  const newStatus = this.statusDrafts[request.id];
-  const newRemarks = this.remarksDrafts[request.id] || null;
+    const newStatus = this.statusDrafts[request.id];
+    const newRemarks = this.remarksDrafts[request.id] || null;
 
-  const updated = await this.requestService.updateRequestStatus(
-    request.id,
-    newStatus,
-    newRemarks
-  );
+    const updated = await this.requestService.updateRequestStatus(
+      request.id,
+      newStatus,
+      newRemarks
+    );
 
-  this.savingId = null;
+    this.savingId = null;
 
-  if (updated) {
-    const index = this.requests.findIndex((r) => r.id === request.id);
-    if (index !== -1) {
-      this.requests[index] = updated;
+    if (updated) {
+      const index = this.requests.findIndex((r) => r.id === request.id);
+      if (index !== -1) {
+        this.requests[index] = updated;
+      }
+
+      await this.auditLogService.logAction('status_changed', 'request', updated.id, {
+        request_type: updated.request_type,
+        new_status: updated.status
+      });
     }
-
-    await this.auditLogService.logAction('status_changed', 'request', updated.id, {
-      request_type: updated.request_type,
-      new_status: updated.status
-    });
   }
-}
 }

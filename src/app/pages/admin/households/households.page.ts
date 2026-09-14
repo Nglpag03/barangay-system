@@ -41,6 +41,7 @@ export class HouseholdsPage implements OnInit, ViewWillEnter {
 
   households: Household[] = [];
   loading = true;
+  loadError = false;
 
   constructor(
     private readonly householdService: HouseholdService
@@ -54,9 +55,17 @@ export class HouseholdsPage implements OnInit, ViewWillEnter {
     await this.loadHouseholds();
   }
 
-  private async loadHouseholds() {
+  async loadHouseholds() {
     this.loading = true;
-    this.households = await this.householdService.getAllHouseholds();
-    this.loading = false;
+    this.loadError = false;
+
+    try {
+      this.households = await this.householdService.getAllHouseholds();
+    } catch (err) {
+      console.error('Failed to load households:', err);
+      this.loadError = true;
+    } finally {
+      this.loading = false;
+    }
   }
 }

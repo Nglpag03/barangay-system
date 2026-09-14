@@ -25,11 +25,16 @@
     <p>Loading residents...</p>
   </div>
 
-  <div *ngIf="!loading && filteredResidents.length === 0">
+  <div *ngIf="!loading && loadError" class="load-error">
+    <p>Couldn't load residents. Please check your connection and try again.</p>
+    <ion-button expand="block" fill="outline" (click)="loadResidents()">Retry</ion-button>
+  </div>
+
+  <div *ngIf="!loading && !loadError && filteredResidents.length === 0">
     <p>No residents found.</p>
   </div>
 
-  <ion-list *ngIf="!loading && filteredResidents.length > 0">
+  <ion-list *ngIf="!loading && !loadError && filteredResidents.length > 0">
 <ion-item
   *ngFor="let resident of filteredResidents"
   button="true"

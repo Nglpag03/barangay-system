@@ -53,10 +53,10 @@ export class AdminDocumentsPage implements OnInit, ViewWillEnter {
   residents: Resident[] = [];
   residentsById: Map<string, Resident> = new Map();
   loading = true;
+  loadError = false;
   uploading = false;
   uploadError: string | null = null;
 
-  // Upload form state
   selectedResidentId: string | null = null;
   documentType = '';
   documentNumber = '';
@@ -76,18 +76,25 @@ export class AdminDocumentsPage implements OnInit, ViewWillEnter {
     await this.loadData();
   }
 
-  private async loadData() {
+  async loadData() {
     this.loading = true;
+    this.loadError = false;
 
-    const [documents, residents] = await Promise.all([
-      this.documentService.getAllDocuments(),
-      this.residentService.getAllResidents()
-    ]);
+    try {
+      const [documents, residents] = await Promise.all([
+        this.documentService.getAllDocuments(),
+        this.residentService.getAllResidents()
+      ]);
 
-    this.documents = documents;
-    this.residents = residents;
-    this.residentsById = new Map(residents.map((r) => [r.id, r]));
-    this.loading = false;
+      this.documents = documents;
+      this.residents = residents;
+      this.residentsById = new Map(residents.map((r) => [r.id, r]));
+    } catch (err) {
+      console.error('Failed to load documents:', err);
+      this.loadError = true;
+    } finally {
+      this.loading = false;
+    }
   }
 
   getResidentName(residentId: string): string {

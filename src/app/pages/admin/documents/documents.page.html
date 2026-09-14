@@ -54,11 +54,16 @@
     <p>Loading documents...</p>
   </div>
 
-  <div *ngIf="!loading && documents.length === 0">
+  <div *ngIf="!loading && loadError" class="load-error">
+    <p>Couldn't load documents. Please check your connection and try again.</p>
+    <ion-button expand="block" fill="outline" (click)="loadData()">Retry</ion-button>
+  </div>
+
+  <div *ngIf="!loading && !loadError && documents.length === 0">
     <p>No documents uploaded yet.</p>
   </div>
 
-  <ion-list *ngIf="!loading && documents.length > 0">
+  <ion-list *ngIf="!loading && !loadError && documents.length > 0">
     <ion-item *ngFor="let document of documents">
       <ion-label>
         <h2>{{ getResidentName(document.resident_id) }} — {{ document.document_type }}</h2>

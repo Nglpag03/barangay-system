@@ -13,11 +13,6 @@ export class AuditLogService {
     private readonly authService: AuthService
   ) {}
 
-  /**
-   * Records an admin action. Fails silently (logs to console only) rather than
-   * blocking the actual operation — an audit log failure shouldn't prevent
-   * an admin from completing their real task.
-   */
   async logAction(
     action: string,
     entityType: string,
@@ -49,7 +44,7 @@ export class AuditLogService {
 
     if (error) {
       console.error('Error fetching audit logs:', error);
-      return [];
+      throw error;
     }
 
     return data as AuditLog[];

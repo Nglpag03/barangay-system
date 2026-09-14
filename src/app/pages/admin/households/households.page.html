@@ -19,11 +19,16 @@
     <p>Loading households...</p>
   </div>
 
-  <div *ngIf="!loading && households.length === 0">
+  <div *ngIf="!loading && loadError" class="load-error">
+    <p>Couldn't load households. Please check your connection and try again.</p>
+    <ion-button expand="block" fill="outline" (click)="loadHouseholds()">Retry</ion-button>
+  </div>
+
+  <div *ngIf="!loading && !loadError && households.length === 0">
     <p>No households found.</p>
   </div>
 
-  <ion-list *ngIf="!loading && households.length > 0">
+  <ion-list *ngIf="!loading && !loadError && households.length > 0">
     <ion-item
       *ngFor="let household of households"
       button="true"

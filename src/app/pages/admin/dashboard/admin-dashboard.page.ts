@@ -100,6 +100,8 @@ export class AdminDashboardPage implements OnInit, OnDestroy {
   currentUserRole: string = 'Admin';
   isOnline = true;
 
+  logoutError = '';
+
   // Data
   recentRequests: RecentRequest[] = [];
   stats: Array<{label: string; value: string; delta: string; color: string}> = [];
@@ -186,20 +188,6 @@ quickActions = [
       day: 'numeric'
     }).toUpperCase();
   }
-
-  // setupOnlineStatus() {
-  //   this.isOnline = this.onlineStatusService.isOnline();
-    
-  //   this.refreshInterval = setInterval(() => {
-  //     const currentStatus = this.onlineStatusService.isOnline();
-  //     if (currentStatus !== this.isOnline) {
-  //       this.isOnline = currentStatus;
-  //       if (currentStatus && !this.isLoading) {
-  //         this.loadDashboardData();
-  //       }
-  //     }
-  //   }, 3000);
-  // }
 
   async loadUserInfo() {
     try {
@@ -444,7 +432,16 @@ quickActions = [
   }
 
   async logout() {
-    await this.authService.signOut();
+    this.logoutError = '';
+
+    const { error } = await this.authService.signOut();
+
+    if (error) {
+      console.error('Logout error:', error);
+      this.logoutError = 'Something went wrong while logging out. Please try again.';
+      return;
+    }
+
     await this.router.navigate(['/login']);
   }
 

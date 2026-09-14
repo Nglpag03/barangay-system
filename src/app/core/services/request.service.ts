@@ -56,7 +56,7 @@ export class RequestService {
 
     if (error) {
       console.error('Error fetching my requests:', error);
-      return [];
+      throw error;
     }
 
     return data as ResidentRequest[];
@@ -70,7 +70,7 @@ export class RequestService {
 
     if (error) {
       console.error('Error fetching all requests:', error);
-      return [];
+      throw error;
     }
 
     return data as ResidentRequest[];
