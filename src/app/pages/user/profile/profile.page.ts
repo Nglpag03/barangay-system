@@ -88,4 +88,14 @@ export class ProfilePage implements OnInit {
     this.resident = updated;
     this.saveSuccess = true;
   }
+
+  get isContactNumberValid(): boolean {
+  const trimmed = this.contactNumber.trim();
+
+  if (!trimmed) {
+    return true; // empty is fine, it's optional
+  }
+
+  return /^[0-9+\-\s]{7,15}$/.test(trimmed);
+}
 }

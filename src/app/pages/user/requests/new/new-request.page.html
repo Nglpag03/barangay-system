@@ -10,7 +10,7 @@
 <ion-content class="ion-padding">
 
   <ion-item>
-    <ion-label position="stacked">Request Type</ion-label>
+    <ion-label position="stacked">Request Type <span class="required-mark">*</span></ion-label>
     <ion-select [(ngModel)]="requestType" placeholder="Select a request type">
       <ion-select-option value="barangay_clearance">Barangay Clearance</ion-select-option>
       <ion-select-option value="certificate_of_residency">Certificate of Residency</ion-select-option>
@@ -31,7 +31,7 @@
 
   <ion-button
     expand="block"
-    [disabled]="saving"
+    [disabled]="saving || !requestType"
     (click)="submit()">
     {{ saving ? 'Submitting...' : 'Submit Request' }}
   </ion-button>

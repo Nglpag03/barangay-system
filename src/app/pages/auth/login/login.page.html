@@ -42,18 +42,18 @@
           </ion-text>
         }
 
-        <ion-button
-          expand="block"
-          (click)="login()"
-          [disabled]="loading">
+<ion-button
+  expand="block"
+  (click)="login()"
+  [disabled]="loading || !isFormValid">
 
-          @if (loading) {
-            <ion-spinner name="crescent"></ion-spinner>
-          } @else {
-            Login
-          }
+  @if (loading) {
+    <ion-spinner name="crescent"></ion-spinner>
+  } @else {
+    Login
+  }
 
-        </ion-button>
+</ion-button>
 
       </ion-card-content>
 

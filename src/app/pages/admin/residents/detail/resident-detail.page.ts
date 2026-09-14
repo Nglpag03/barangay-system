@@ -178,4 +178,15 @@ async save() {
   this.resident = updated;
   this.saveSuccess = true;
 }
+
+get isFormValid(): boolean {
+  return !!(
+    this.residentNumber.trim() &&
+    this.firstName.trim() &&
+    this.lastName.trim() &&
+    this.birthDate &&
+    this.sex &&
+    this.civilStatus
+  );
+}
 }

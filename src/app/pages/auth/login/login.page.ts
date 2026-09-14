@@ -53,7 +53,7 @@ export class LoginPage {
     this.errorMessage = '';
 
     if (!this.email || !this.password) {
-      this.errorMessage = 'Please enter your email and password.';
+      this.errorMessage = 'Please enter your a valid email and password.';
       return;
     }
 
@@ -104,4 +104,9 @@ await this.authService.signOut();
 
 this.errorMessage = 'Your account has an invalid role.';
   }
+
+  get isFormValid(): boolean {
+  const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailPattern.test(this.email.trim()) && this.password.length > 0;
+}
 }

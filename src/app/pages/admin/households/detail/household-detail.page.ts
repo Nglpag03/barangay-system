@@ -142,4 +142,14 @@ export class HouseholdDetailPage implements OnInit {
 
   this.saveSuccess = true;
 }
+
+get isFormValid(): boolean {
+  return !!(
+    this.householdNumber.trim() &&
+    this.purok.trim() &&
+    this.barangay.trim() &&
+    this.municipality.trim() &&
+    this.province.trim()
+  );
+}
 }

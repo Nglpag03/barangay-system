@@ -16,7 +16,7 @@
   <div *ngIf="!loading">
 
     <ion-item>
-      <ion-label position="stacked">Household Number</ion-label>
+      <ion-label position="stacked">Household Number <span class="required-mark">*</span></ion-label>
       <ion-input [(ngModel)]="householdNumber" type="text" placeholder="e.g. HH-0002"></ion-input>
     </ion-item>
 
@@ -31,28 +31,28 @@
     </ion-item>
 
     <ion-item>
-      <ion-label position="stacked">Purok</ion-label>
+      <ion-label position="stacked">Purok <span class="required-mark">*</span></ion-label>
       <ion-input [(ngModel)]="purok" type="text"></ion-input>
     </ion-item>
 
     <ion-item>
-      <ion-label position="stacked">Barangay</ion-label>
+      <ion-label position="stacked">Barangay <span class="required-mark">*</span></ion-label>
       <ion-input [(ngModel)]="barangay" type="text"></ion-input>
     </ion-item>
 
     <ion-item>
-      <ion-label position="stacked">Municipality</ion-label>
+      <ion-label position="stacked">Municipality <span class="required-mark">*</span></ion-label>
       <ion-input [(ngModel)]="municipality" type="text"></ion-input>
     </ion-item>
 
     <ion-item>
-      <ion-label position="stacked">Province</ion-label>
+      <ion-label position="stacked">Province <span class="required-mark">*</span></ion-label>
       <ion-input [(ngModel)]="province" type="text"></ion-input>
     </ion-item>
 
     <ion-button
       expand="block"
-      [disabled]="saving"
+      [disabled]="saving || !isFormValid"
       (click)="save()">
       {{ saving ? 'Saving...' : (isNew ? 'Create Household' : 'Save Changes') }}
     </ion-button>

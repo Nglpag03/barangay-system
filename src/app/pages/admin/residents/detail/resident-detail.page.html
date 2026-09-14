@@ -20,12 +20,12 @@
   <div *ngIf="!loading && (isNew || resident)">
 
     <ion-item>
-      <ion-label position="stacked">Resident Number</ion-label>
+      <ion-label position="stacked">Resident Number <span class="required-mark">*</span></ion-label>
       <ion-input [(ngModel)]="residentNumber" type="text" placeholder="e.g. RES-0002"></ion-input>
     </ion-item>
 
     <ion-item>
-      <ion-label position="stacked">First Name</ion-label>
+      <ion-label position="stacked">First Name <span class="required-mark">*</span></ion-label>
       <ion-input [(ngModel)]="firstName" type="text"></ion-input>
     </ion-item>
 
@@ -35,7 +35,7 @@
     </ion-item>
 
     <ion-item>
-      <ion-label position="stacked">Last Name</ion-label>
+      <ion-label position="stacked">Last Name <span class="required-mark">*</span></ion-label>
       <ion-input [(ngModel)]="lastName" type="text"></ion-input>
     </ion-item>
 
@@ -45,7 +45,7 @@
     </ion-item>
 
     <ion-item>
-      <ion-label position="stacked">Birth Date</ion-label>
+      <ion-label position="stacked">Birth Date <span class="required-mark">*</span></ion-label>
       <ion-input [(ngModel)]="birthDate" type="date"></ion-input>
     </ion-item>
 
@@ -55,7 +55,7 @@
     </ion-item>
 
     <ion-item>
-      <ion-label position="stacked">Sex</ion-label>
+      <ion-label position="stacked">Sex <span class="required-mark">*</span></ion-label>
       <ion-select [(ngModel)]="sex">
         <ion-select-option value="male">Male</ion-select-option>
         <ion-select-option value="female">Female</ion-select-option>
@@ -63,7 +63,7 @@
     </ion-item>
 
     <ion-item>
-      <ion-label position="stacked">Civil Status</ion-label>
+      <ion-label position="stacked">Civil Status <span class="required-mark">*</span></ion-label>
       <ion-select [(ngModel)]="civilStatus">
         <ion-select-option value="single">Single</ion-select-option>
         <ion-select-option value="married">Married</ion-select-option>
@@ -74,7 +74,7 @@
 
     <ion-item>
       <ion-label position="stacked">Contact Number</ion-label>
-      <ion-input [(ngModel)]="contactNumber" type="tel"></ion-input>
+      <ion-input [(ngModel)]="contactNumber" type="tel" pattern="[0-9]*"></ion-input>
     </ion-item>
 
     <ion-item>
@@ -82,28 +82,28 @@
       <ion-input [(ngModel)]="occupation" type="text"></ion-input>
     </ion-item>
 
-<ion-item>
-  <ion-checkbox [(ngModel)]="isActive">Active resident</ion-checkbox>
-</ion-item>
+    <ion-item>
+      <ion-checkbox [(ngModel)]="isActive">Active resident</ion-checkbox>
+    </ion-item>
 
-<ion-item>
-  <ion-label position="stacked">Household</ion-label>
-  <ion-select [(ngModel)]="householdId" placeholder="No household assigned">
-    <ion-select-option [value]="null">No household assigned</ion-select-option>
-    <ion-select-option
-      *ngFor="let household of households"
-      [value]="household.id">
-      {{ household.household_number }} — {{ household.barangay }}
-    </ion-select-option>
-  </ion-select>
-</ion-item>
+    <ion-item>
+      <ion-label position="stacked">Household</ion-label>
+      <ion-select [(ngModel)]="householdId" placeholder="No household assigned">
+        <ion-select-option [value]="null">No household assigned</ion-select-option>
+        <ion-select-option
+          *ngFor="let household of households"
+          [value]="household.id">
+          {{ household.household_number }} — {{ household.barangay }}
+        </ion-select-option>
+      </ion-select>
+    </ion-item>
 
-<ion-button
-  expand="block"
-  [disabled]="saving"
-  (click)="save()">
-  {{ saving ? 'Saving...' : (isNew ? 'Create Resident' : 'Save Changes') }}
-</ion-button>
+    <ion-button
+      expand="block"
+      [disabled]="saving || !isFormValid"
+      (click)="save()">
+      {{ saving ? 'Saving...' : (isNew ? 'Create Resident' : 'Save Changes') }}
+    </ion-button>
 
     <p class="error" *ngIf="saveError">{{ saveError }}</p>
     <p class="success" *ngIf="saveSuccess">Saved successfully.</p>
