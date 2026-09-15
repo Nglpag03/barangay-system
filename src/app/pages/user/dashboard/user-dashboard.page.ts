@@ -36,12 +36,13 @@ export class UserDashboardPage implements OnInit {
   constructor(
     private readonly authService: AuthService,
     private readonly residentService: ResidentService,
-    private readonly router: Router
+    private readonly router: Router,
   ) {}
 
   async ngOnInit() {
     this.resident = await this.residentService.getMyResidentRecord();
     this.loading = false;
+
   }
 
   async logout() {

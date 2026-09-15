@@ -12,7 +12,8 @@ import {
   IonIcon,
   IonRefresher,
   IonRefresherContent,
-  IonSpinner
+  IonSpinner,
+  IonText
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import {
@@ -85,7 +86,8 @@ interface RecentRequest {
     IonIcon,
     IonRefresher,
     IonRefresherContent,
-    IonSpinner
+    IonSpinner,
+    IonText
   ]
 })
 export class AdminDashboardPage implements OnInit, OnDestroy {
