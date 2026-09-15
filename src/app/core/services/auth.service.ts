@@ -72,9 +72,6 @@ export class AuthService {
       .eq('id', user.id)
       .maybeSingle();
 
-    console.log('PROFILE QUERY DATA:', data);
-    console.log('PROFILE QUERY ERROR:', error);
-
     if (error) {
       console.error('Error getting profile:', error);
       return null;

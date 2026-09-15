@@ -5,14 +5,10 @@ import { Router } from '@angular/router';
 import {
   IonContent,
   IonHeader,
-  IonToolbar,
-  IonTitle,
   IonButton,
   IonItem,
   IonLabel,
   IonInput,
-  IonBackButton,
-  IonButtons
 } from '@ionic/angular/standalone';
 
 import { ResidentService } from '../../../core/services/resident.service';
@@ -26,16 +22,10 @@ import { Household } from '../../../core/model/household.model';
   imports: [
     CommonModule,
     FormsModule,
-    IonContent,
-    IonHeader,
-    IonToolbar,
-    IonTitle,
     IonButton,
     IonItem,
     IonLabel,
     IonInput,
-    IonBackButton,
-    IonButtons
   ]
 })
 export class ProfilePage implements OnInit {

@@ -48,12 +48,17 @@ export class LoginPage {
     private readonly router: Router
   ) {}
 
+  get isFormValid(): boolean {
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailPattern.test(this.email.trim()) && this.password.length > 0;
+  }
+
   async login() {
 
     this.errorMessage = '';
 
-    if (!this.email || !this.password) {
-      this.errorMessage = 'Please enter your a valid email and password.';
+    if (!this.isFormValid) {
+      this.errorMessage = 'Please enter a valid email and password.';
       return;
     }
 
@@ -67,46 +72,38 @@ export class LoginPage {
 
     this.loading = false;
 
-  if (error) {
-  console.error('Login error:', error);
+    if (error) {
+      console.error('Login error:', error);
 
-  this.errorMessage = 'Invalid email or password.';
-  return;
-}
+      this.errorMessage = 'Invalid email or password.';
+      return;
+    }
 
-console.log('Successfully logged in:', data.user);
-const profile = await this.authService.getCurrentProfile();
+    const profile = await this.authService.getCurrentProfile();
 
-console.log('Current profile:', profile);
+    if (!profile) {
+      this.errorMessage = 'Unable to load your user profile.';
+      return;
+    }
 
-if (!profile) {
-  this.errorMessage = 'Unable to load your user profile.';
-  return;
-}
+    if (!profile.is_active) {
+      await this.authService.signOut();
+      this.errorMessage = 'Your account is inactive.';
+      return;
+    }
 
-if (!profile.is_active) {
-  await this.authService.signOut();
-  this.errorMessage = 'Your account is inactive.';
-  return;
-}
+    if (profile.role === 'admin') {
+      await this.router.navigate(['/admin/dashboard']);
+      return;
+    }
 
-if (profile.role === 'admin') {
-  await this.router.navigate(['/admin/dashboard']);
-  return;
-}
+    if (profile.role === 'resident') {
+      await this.router.navigate(['/user/dashboard']);
+      return;
+    }
 
-if (profile.role === 'resident') {
-  await this.router.navigate(['/user/dashboard']);
-  return;
-}
+    await this.authService.signOut();
 
-await this.authService.signOut();
-
-this.errorMessage = 'Your account has an invalid role.';
+    this.errorMessage = 'Your account has an invalid role.';
   }
-
-  get isFormValid(): boolean {
-  const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  return emailPattern.test(this.email.trim()) && this.password.length > 0;
-}
 }
