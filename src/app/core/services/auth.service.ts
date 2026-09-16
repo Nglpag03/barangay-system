@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
-import { AuthChangeEvent, Session, User } from '@supabase/supabase-js';
+import { AuthChangeEvent, Session, User, createClient } from '@supabase/supabase-js';
 import { SupabaseService } from './supabase.service';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
@@ -81,14 +82,82 @@ export class AuthService {
   }
 
   async resetPasswordForEmail(email: string) {
-  return await this.supabaseService.client.auth.resetPasswordForEmail(email, {
-    redirectTo: `${window.location.origin}/reset-password`
-  });
-}
+    return await this.supabaseService.client.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/reset-password`
+    });
+  }
 
-async updatePassword(newPassword: string) {
-  return await this.supabaseService.client.auth.updateUser({
-    password: newPassword
-  });
-}
+  async updatePassword(newPassword: string) {
+    return await this.supabaseService.client.auth.updateUser({
+      password: newPassword
+    });
+  }
+
+  /**
+   * Admin-only: creates a login account for a resident who doesn't have one yet.
+   *
+   * Uses a SEPARATE, temporary Supabase client (not this.supabaseService.client)
+   * so that signing up the new resident does not disturb the currently logged-in
+   * admin's own session. persistSession: false means this temporary client never
+   * touches localStorage at all — it exists only for this one call.
+   */
+  async createResidentAccount(
+    email: string,
+    password: string,
+    residentId: string,
+    fullName: string
+  ): Promise<{ success: boolean; error?: string }> {
+
+    const tempClient = createClient(
+      environment.supabaseUrl,
+      environment.supabasePublishableKey,
+      {
+        auth: {
+          persistSession: false,
+          autoRefreshToken: false
+        }
+      }
+    );
+
+    const { data: signUpData, error: signUpError } = await tempClient.auth.signUp({
+      email,
+      password
+    });
+
+    if (signUpError || !signUpData.user) {
+      console.error('Error creating resident account:', signUpError);
+      return { success: false, error: signUpError?.message ?? 'Account creation failed.' };
+    }
+
+    const newUserId = signUpData.user.id;
+
+    // Back on the ADMIN's real, still-logged-in client from here on —
+    // this insert relies on the "Admins can insert profiles" RLS policy.
+    const { error: profileError } = await this.supabaseService.client
+      .from('profiles')
+      .insert({
+        id: newUserId,
+        role: 'resident',
+        full_name: fullName,
+        is_active: true
+      });
+
+    if (profileError) {
+      console.error('Error creating profile for new resident account:', profileError);
+      return { success: false, error: 'Account was created but profile setup failed. Please contact support.' };
+    }
+
+    // Link the resident record to this new login.
+    const { error: linkError } = await this.supabaseService.client
+      .from('residents')
+      .update({ profile_id: newUserId })
+      .eq('id', residentId);
+
+    if (linkError) {
+      console.error('Error linking resident to new account:', linkError);
+      return { success: false, error: 'Account was created but could not be linked to the resident record.' };
+    }
+
+    return { success: true };
+  }
 }
