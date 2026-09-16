@@ -15,13 +15,14 @@ import {
 import { FormsModule } from '@angular/forms';
 
 import { AuthService } from '../../../core/services/auth.service';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 @Component({
   selector: 'app-login',
   templateUrl: './login.page.html',
   styleUrls: ['./login.page.scss'],
   imports: [
     FormsModule,
+    RouterLink,
     IonContent,
     IonInput,
     IonButton,

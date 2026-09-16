@@ -79,4 +79,16 @@ export class AuthService {
 
     return data;
   }
+
+  async resetPasswordForEmail(email: string) {
+  return await this.supabaseService.client.auth.resetPasswordForEmail(email, {
+    redirectTo: `${window.location.origin}/reset-password`
+  });
+}
+
+async updatePassword(newPassword: string) {
+  return await this.supabaseService.client.auth.updateUser({
+    password: newPassword
+  });
+}
 }
