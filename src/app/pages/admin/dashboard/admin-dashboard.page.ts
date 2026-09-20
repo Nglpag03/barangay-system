@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { RouterLink, Router } from '@angular/router';
-import { CommonModule } from '@angular/common';
+import { CommonModule, TitleCasePipe } from '@angular/common';
 import {
   IonContent,
   IonHeader,
@@ -76,6 +76,7 @@ interface RecentRequest {
     IonContent,
     IonHeader,
     IonToolbar,
+    TitleCasePipe,
     IonTitle,
     IonIcon,
     IonRefresher,

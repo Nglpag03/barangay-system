@@ -2,19 +2,7 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import {
-  IonContent,
-  IonInput,
-  IonButton,
-  IonItem,
-  IonLabel,
-  IonCard,
-  IonCardHeader,
-  IonCardTitle,
-  IonCardContent,
-  IonText,
-  IonSpinner
-} from '@ionic/angular/standalone';
+import { IonContent } from '@ionic/angular/standalone';
 
 import { AuthService } from '../../../core/services/auth.service';
 
@@ -27,16 +15,6 @@ import { AuthService } from '../../../core/services/auth.service';
     FormsModule,
     RouterLink,
     IonContent,
-    IonInput,
-    IonButton,
-    IonItem,
-    IonLabel,
-    IonCard,
-    IonCardHeader,
-    IonCardTitle,
-    IonCardContent,
-    IonText,
-    IonSpinner
   ]
 })
 export class ForgotPasswordPage {

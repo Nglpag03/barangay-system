@@ -1,71 +1,181 @@
 <ion-content [fullscreen]="true">
 
-  <div class="login-container">
+  <div class="login-page">
 
-    <ion-card>
+```
+<div class="wrapper">
 
-      <ion-card-header>
-        <ion-card-title>
-          Barangay System
-        </ion-card-title>
-      </ion-card-header>
+  <!-- Header -->
+  <div class="header">
 
-      <ion-card-content>
+    <div class="icon-wrap">
+      <svg
+        width="22"
+        height="22"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="white"
+        stroke-width="1.8"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+        <polyline points="9 22 9 12 15 12 15 22"/>
+      </svg>
+    </div>
 
-        <ion-item>
-          <ion-label position="stacked">
-            Email
-          </ion-label>
-
-          <ion-input
-            type="email"
-            [(ngModel)]="email"
-            placeholder="Enter your email">
-          </ion-input>
-        </ion-item>
-
-        <ion-item>
-          <ion-label position="stacked">
-            Password
-          </ion-label>
-
-          <ion-input
-            type="password"
-            [(ngModel)]="password"
-            placeholder="Enter your password">
-          </ion-input>
-        </ion-item>
-
-        @if (errorMessage) {
-          <ion-text color="danger">
-            <p>{{ errorMessage }}</p>
-          </ion-text>
-        }
-
-<ion-button
-  expand="block"
-  (click)="login()"
-  [disabled]="loading || !isFormValid">
-
-  @if (loading) {
-    <ion-spinner name="crescent"></ion-spinner>
-  } @else {
-    Login
-  }
-
-</ion-button>
-
-<ion-button
-  expand="block"
-  fill="clear"
-  routerLink="/forgot-password">
-  Forgot Password?
-</ion-button>
-
-      </ion-card-content>
-
-    </ion-card>
+    <h1>Barangay System</h1>
+    <p>Sign in to your account</p>
 
   </div>
 
+  <!-- Login Card -->
+  <div class="card">
+
+    <form (ngSubmit)="login()" novalidate>
+
+      <!-- Email -->
+      <div class="field">
+
+        <label for="email">Email</label>
+
+        <input
+          type="email"
+          id="email"
+          name="email"
+          [(ngModel)]="email"
+          placeholder="you@example.com"
+          autocomplete="email"
+        />
+
+      </div>
+
+      <!-- Password -->
+      <div class="field">
+
+        <label for="password">Password</label>
+
+        <div class="input-wrap">
+
+          <input
+            [type]="showPassword ? 'text' : 'password'"
+            id="password"
+            name="password"
+            [(ngModel)]="password"
+            placeholder="Enter your password"
+            autocomplete="current-password"
+          />
+
+          <button
+            type="button"
+            class="toggle-pw"
+            (click)="togglePassword()"
+            tabindex="-1"
+            aria-label="Toggle password visibility"
+          >
+
+            <!-- Eye Open -->
+            <svg
+              *ngIf="!showPassword"
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.8"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+              <circle cx="12" cy="12" r="3"/>
+            </svg>
+
+            <!-- Eye Closed -->
+            <svg
+              *ngIf="showPassword"
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.8"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/>
+              <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/>
+              <line x1="1" y1="1" x2="23" y2="23"/>
+            </svg>
+
+          </button>
+
+        </div>
+
+      </div>
+
+      <!-- Error Message -->
+      <div
+        class="error"
+        [class.hidden]="!errorMessage"
+      >
+
+        <svg
+          width="15"
+          height="15"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <circle cx="12" cy="12" r="10"/>
+          <line x1="12" y1="8" x2="12" y2="12"/>
+          <line x1="12" y1="16" x2="12.01" y2="16"/>
+        </svg>
+
+        <span>{{ errorMessage }}</span>
+
+      </div>
+
+      <!-- Login Button -->
+      <button
+        type="submit"
+        class="btn-login"
+        [disabled]="!isFormValid || loading"
+      >
+
+        <span
+          *ngIf="loading"
+          class="spinner"
+        ></span>
+
+        <span>
+          {{ loading ? 'Signing in…' : 'Sign In' }}
+        </span>
+
+      </button>
+
+      <!-- Forgot Password -->
+      <button
+        type="button"
+        class="btn-forgot"
+        routerLink="/forgot-password"
+      >
+        Forgot password?
+      </button>
+
+    </form>
+
+  </div>
+
+  <!-- Footer -->
+  <p class="footer-note">
+    For authorized personnel only
+  </p>
+
+</div>
+```
+
+  </div>
 </ion-content>

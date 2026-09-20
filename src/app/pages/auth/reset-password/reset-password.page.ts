@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+
 import {
   IonContent,
   IonInput,
@@ -17,7 +17,7 @@ import {
 } from '@ionic/angular/standalone';
 
 import { AuthService } from '../../../core/services/auth.service';
-
+import { Router, RouterLink } from '@angular/router';
 @Component({
   selector: 'app-reset-password',
   templateUrl: './reset-password.page.html',
@@ -35,7 +35,8 @@ import { AuthService } from '../../../core/services/auth.service';
     IonCardTitle,
     IonCardContent,
     IonText,
-    IonSpinner
+    IonSpinner,
+    RouterLink
   ]
 })
 export class ResetPasswordPage implements OnInit {
@@ -49,6 +50,17 @@ export class ResetPasswordPage implements OnInit {
 
   hasValidSession = false;
   checkingSession = true;
+
+  showNewPassword = false;
+showConfirmPassword = false;
+
+toggleNewPassword() {
+  this.showNewPassword = !this.showNewPassword;
+}
+
+toggleConfirmPassword() {
+  this.showConfirmPassword = !this.showConfirmPassword;
+}
 
   constructor(
     private readonly authService: AuthService,
