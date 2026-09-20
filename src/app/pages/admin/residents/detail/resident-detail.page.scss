@@ -8,3 +8,15 @@
 .required-mark {
   color: var(--ion-color-danger);
 }
+.credentials-box {
+  background: var(--ion-color-success-tint);
+  padding: 16px;
+  border-radius: 8px;
+  margin-top: 16px;
+}
+
+hr {
+  margin: 24px 0;
+  border: none;
+  border-top: 1px solid var(--ion-color-light-shade);
+}

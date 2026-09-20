@@ -131,6 +131,20 @@ export class AuthService {
 
     const newUserId = signUpData.user.id;
 
+    // Confirm the email ourselves via a secure database function, rather than
+    // relying on Supabase's dashboard "Confirm email" setting (which we found
+    // does not reliably apply). This uses the ADMIN's real session to call a
+    // security-definer function that verifies admin status before touching
+    // auth.users directly.
+    const { error: confirmError } = await this.supabaseService.client
+      .rpc('confirm_resident_email', { target_user_id: newUserId });
+
+    if (confirmError) {
+      console.error('Error confirming resident email:', confirmError);
+      // Not fatal — the account still exists, just continue. Worth noting
+      // to staff that this specific account may need manual confirmation.
+    }
+
     // Back on the ADMIN's real, still-logged-in client from here on —
     // this insert relies on the "Admins can insert profiles" RLS policy.
     const { error: profileError } = await this.supabaseService.client

@@ -98,6 +98,18 @@
       </ion-select>
     </ion-item>
 
+    <ion-item>
+      <ion-label position="stacked">Household</ion-label>
+      <ion-select [(ngModel)]="householdId" placeholder="No household assigned">
+        <ion-select-option [value]="null">No household assigned</ion-select-option>
+        <ion-select-option
+          *ngFor="let household of households"
+          [value]="household.id">
+          {{ household.household_number }} — {{ household.barangay }}
+        </ion-select-option>
+      </ion-select>
+    </ion-item>
+
     <ion-button
       expand="block"
       [disabled]="saving || !isFormValid"
@@ -107,6 +119,53 @@
 
     <p class="error" *ngIf="saveError">{{ saveError }}</p>
     <p class="success" *ngIf="saveSuccess">Saved successfully.</p>
+
+    <!-- Login account section — only shown for existing residents -->
+    <div *ngIf="!isNew && resident">
+
+      <hr />
+
+      <div *ngIf="resident.profile_id && !createdCredentials">
+        <h3>Login Account</h3>
+        <p>This resident already has a login account linked.</p>
+      </div>
+
+      <div *ngIf="!resident.profile_id && !createdCredentials">
+        <h3>Create Login Account</h3>
+        <p>This resident does not have a login account yet.</p>
+
+        <ion-item>
+          <ion-label position="stacked">Email</ion-label>
+          <ion-input [(ngModel)]="accountEmail" type="email" placeholder="resident@example.com"></ion-input>
+        </ion-item>
+
+        <ion-item>
+          <ion-label position="stacked">Password</ion-label>
+          <ion-input [(ngModel)]="accountPassword" type="text" placeholder="At least 6 characters"></ion-input>
+        </ion-item>
+
+        <ion-button expand="block" fill="outline" (click)="generatePassword()">
+          Generate Random Password
+        </ion-button>
+
+        <ion-button
+          expand="block"
+          [disabled]="creatingAccount || !isAccountFormValid"
+          (click)="createAccount()">
+          {{ creatingAccount ? 'Creating...' : 'Create Login Account' }}
+        </ion-button>
+
+        <p class="error" *ngIf="accountError">{{ accountError }}</p>
+      </div>
+
+      <div *ngIf="createdCredentials" class="credentials-box">
+        <h3>Account Created</h3>
+        <p><strong>Write these down now — the password cannot be viewed again after you leave this page.</strong></p>
+        <p><strong>Email:</strong> {{ createdCredentials.email }}</p>
+        <p><strong>Password:</strong> {{ createdCredentials.password }}</p>
+      </div>
+
+    </div>
 
   </div>
 
