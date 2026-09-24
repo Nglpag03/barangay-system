@@ -1,201 +1,112 @@
-<ion-content [fullscreen]="true" class="dashboard-content" [scrollY]="false">
-  <div class="app-shell">
+<ion-content [fullscreen]="true" class="dashboard-content">
+  
+  <header class="top-bar">
+    <div class="page-title">
+      <h1>Admin Dashboard</h1>
+      <p>{{ todayDate }}</p>
+    </div>
+    <div class="system-status">
+      <span class="status-dot"></span> System Online
+    </div>
+  </header>
 
-    <!-- ═══════════ SIDEBAR ═══════════ -->
-    <aside class="sidebar" [class.collapsed]="isSidebarCollapsed">
+  <ion-refresher slot="fixed" (ionRefresh)="refreshData($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
 
-      <div class="sidebar-logo">
-        <div class="sidebar-logo-icon">
-          <ion-icon name="home-outline"></ion-icon>
-        </div>
-        <div class="sidebar-logo-text">
-          <span class="sidebar-logo-name">Barangay</span>
-          <span class="sidebar-logo-sub">San Isidro · System</span>
-        </div>
-        <button
-          class="sidebar-toggle"
-          (click)="toggleSidebar()"
-          title="Collapse sidebar"
-          type="button">
-          <ion-icon name="chevron-back-outline"></ion-icon>
-        </button>
-      </div>
+  <!-- LOADING STATE -->
+  <div class="loading-state" *ngIf="isLoading">
+    <ion-spinner name="crescent"></ion-spinner>
+    <p>Loading dashboard data...</p>
+  </div>
 
-      <nav class="sidebar-nav">
-        <a
-          *ngFor="let item of navItems"
-          class="nav-item"
-          [class.active]="item.active"
-          [routerLink]="item.path"
-          [attr.data-label]="item.label">
-          <ion-icon class="nav-icon" [name]="item.icon"></ion-icon>
-          <span class="nav-label">{{ item.label }}</span>
-        </a>
-      </nav>
-
-      <div class="sidebar-profile">
-        <div class="profile-avatar">
-          {{ currentUserName.charAt(0).toUpperCase() }}
-        </div>
-        <div class="profile-info">
-          <span class="profile-name">{{ currentUserName }}</span>
-          <span class="profile-role">{{ currentUserRole }}</span>
-        </div>
-        <button
-          class="profile-logout"
-          (click)="logout()"
-          title="Logout"
-          type="button">
-          <ion-icon name="log-out-outline"></ion-icon>
-        </button>
-      </div>
-
-    </aside>
-
-    <!-- ═══════════ MAIN AREA ═══════════ -->
-    <div class="main-area">
-
-      <!-- Topbar -->
-      <div class="topbar">
-        <div>
-          <h1 class="topbar-heading">Admin Dashboard</h1>
-          <span class="topbar-date">{{ todayDate }}</span>
-        </div>
-        <div class="status-pill">
-          <span class="status-dot"></span>
-          System Online
+  <!-- DASHBOARD GRID -->
+  <div class="dashboard-grid" *ngIf="!isLoading">
+    
+    <!-- STATS ROW -->
+    <div class="stats-row">
+      <div class="stat-card" *ngFor="let stat of stats">
+        <div class="stat-label">{{ stat.label }}</div>
+        <div class="stat-value">{{ stat.value }}</div>
+        <div class="stat-delta" [ngClass]="stat.color">
+          <span class="dot"></span> {{ stat.delta }}
         </div>
       </div>
+    </div>
 
-      <!-- Scrollable content -->
-      <div class="content-scroll">
+    <!-- MIDDLE SECTION -->
+    <div class="middle-section">
+      
+      <!-- Recent Requests -->
+      <div class="panel requests-panel">
+        <div class="panel-header">
+          <h3>Recent Requests</h3>
+          <a routerLink="/admin/requests" class="view-all">View All</a>
+        </div>
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>REQUEST ID</th>
+                <th>RESIDENT</th>
+                <th>TYPE</th>
+                <th>DATE</th>
+                <th>STATUS</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let req of recentRequests" (click)="onRequestClick(req)">
+                <td class="req-id">{{ req.id }}</td>
+                <td class="req-name">{{ req.residentName }}</td>
+                <td class="req-type">{{ req.type }}</td>
+                <td class="req-date">{{ formatDate(req.date) }}</td>
+                <td>
+                  <span class="badge" [ngClass]="req.status">{{ req.status | titlecase }}</span>
+                </td>
+              </tr>
+              <tr *ngIf="recentRequests.length === 0">
+                <td colspan="5" class="empty-state">No recent requests found.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
 
-        <!-- Loading state -->
-        <div class="loading-container" *ngIf="isLoading">
-          <div class="spinner"></div>
-          <p>Loading dashboard data…</p>
+      <!-- Right Side Panel -->
+      <div class="side-panel">
+        
+        <!-- Quick Actions -->
+        <div class="panel actions-panel">
+          <div class="panel-header">
+            <h3><ion-icon name="flash-outline"></ion-icon> Quick Actions</h3>
+          </div>
+          <div class="actions-list">
+            <a *ngFor="let action of quickActions" [routerLink]="action.path" class="action-item">
+              <div class="action-icon" [ngClass]="action.color">
+                <ion-icon [name]="action.icon"></ion-icon>
+              </div>
+              <span>{{ action.label }}</span>
+              <ion-icon name="arrow-forward-outline" class="arrow"></ion-icon>
+            </a>
+          </div>
         </div>
 
-        <!-- Dashboard content -->
-        <div *ngIf="!isLoading">
-
-          <!-- Stats -->
-          <div class="stats-row">
-            <div class="stat-card" *ngFor="let stat of stats">
-              <span class="stat-label">{{ stat.label }}</span>
-              <span class="stat-value" [ngClass]="stat.color">
-                {{ stat.value }}
-              </span>
-              <span class="stat-delta">{{ stat.delta }}</span>
-            </div>
-          </div>
-
-          <!-- Two-column grid -->
-          <div class="content-grid">
-
-            <!-- Requests table -->
-            <div class="card">
-              <div class="card-header">
-                <span class="card-title">Recent Requests</span>
-                <button
-                  class="card-action"
-                  [routerLink]="['/admin/requests']"
-                  type="button">
-                  View All →
-                </button>
+        <!-- Health Index (Dynamic) -->
+        <div class="panel health-panel">
+          <h4>BARANGAY HEALTH INDEX</h4>
+          <div class="health-content">
+            <div class="circular-progress" [style.background]="'conic-gradient(#107c41 0% ' + healthIndex + '%, #dcfce7 ' + healthIndex + '% 100%)'">
+              <div class="inner-circle">
+                <span>{{ healthIndex }}%</span>
               </div>
-
-              <table class="requests-table">
-                <thead>
-                  <tr>
-                    <th>Request ID</th>
-                    <th>Resident</th>
-                    <th>Type</th>
-                    <th>Date</th>
-                    <th>Status</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr
-                    *ngFor="let req of recentRequests"
-                    (click)="onRequestClick(req)">
-                    <td class="td-id">{{ req.id }}</td>
-                    <td class="td-bold">{{ req.residentName }}</td>
-                    <td class="td-muted">{{ req.type }}</td>
-                    <td class="td-date">{{ formatDate(req.date) }}</td>
-                    <td>
-                      <span class="badge" [ngClass]="req.status">
-                        {{ req.status | titlecase }}
-                      </span>
-                    </td>
-                  </tr>
-                  <tr *ngIf="recentRequests.length === 0">
-                    <td colspan="5" class="empty-state">
-                      No recent requests found.
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
             </div>
-
-            <!-- Right column -->
-            <div class="right-col">
-
-              <!-- Quick Actions -->
-              <div class="card">
-                <div class="card-header">
-                  <span class="card-title">Quick Actions</span>
-                </div>
-                <div class="quick-actions">
-                  <a
-                    class="quick-btn"
-                    *ngFor="let action of quickActions"
-                    [routerLink]="action.path">
-                    <div class="quick-btn-icon" [ngClass]="'icon-' + action.color">
-                      <ion-icon [name]="action.icon"></ion-icon>
-                    </div>
-                    <span>{{ action.label }}</span>
-                    <span class="quick-arrow">→</span>
-                  </a>
-                </div>
-              </div>
-
-              <!-- Health Index -->
-              <div class="card health-card">
-                <span class="health-label">Barangay Health Index</span>
-                <span class="health-value">{{ healthIndex }}%</span>
-                <span class="health-desc">Record completeness this quarter</span>
-                <div class="health-watermark">
-                  <ion-icon name="clipboard-outline"></ion-icon>
-                </div>
-              </div>
-
-            </div>
+            <p>Record completeness this quarter</p>
           </div>
+        </div>
 
-          <!-- Welcome banner -->
-          <div class="welcome-banner">
-            <div class="welcome-avatar">
-              {{ currentUserName.charAt(0).toUpperCase() }}
-            </div>
-            <div>
-              <h2 class="welcome-heading">Welcome, {{ currentUserName }}</h2>
-              <p class="welcome-sub">
-                You are logged in as
-                <span class="role-badge">{{ currentUserRole }}</span>
-              </p>
-            </div>
-          </div>
+      </div>
+    </div>
 
-          <!-- Footer -->
-          <div class="footer-stamp">
-            <div class="footer-line"></div>
-            <span>Republika ng Pilipinas · Barangay San Isidro</span>
-            <div class="footer-line"></div>
-          </div>
+  </div>
 
-        </div><!-- /dashboardContent -->
-      </div><!-- /.content-scroll -->
-    </div><!-- /.main-area -->
-  </div><!-- /.app-shell -->
 </ion-content>

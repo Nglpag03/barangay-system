@@ -174,4 +174,82 @@ export class AuthService {
 
     return { success: true };
   }
+
+  /**
+ * Admin-only: creates just the auth account + profile.
+ * Returns the new user's ID so the caller can link it to a resident.
+ */
+async createAuthAccount(
+  email: string,
+  password: string,
+  fullName: string
+): Promise<{ success: boolean; userId?: string; error?: string }> {
+
+  // Use a temporary client so signing up doesn't disturb the admin's session
+  const tempClient = createClient(
+    environment.supabaseUrl,
+    environment.supabasePublishableKey,
+    { auth: { persistSession: false, autoRefreshToken: false } }
+  );
+
+  const { data: signUpData, error: signUpError } =
+    await tempClient.auth.signUp({ email, password });
+
+  if (signUpError || !signUpData.user) {
+    console.error('Error creating auth account:', signUpError);
+    return { success: false, error: signUpError?.message ?? 'Account creation failed.' };
+  }
+
+  const newUserId = signUpData.user.id;
+
+  // Confirm the email server-side
+  const { error: confirmError } = await this.supabaseService.client
+    .rpc('confirm_resident_email', { target_user_id: newUserId });
+
+  if (confirmError) {
+    console.error('Error confirming resident email:', confirmError);
+    // Non-fatal
+  }
+
+  // Insert into profiles
+  const { error: profileError } = await this.supabaseService.client
+    .from('profiles')
+    .insert({
+      id: newUserId,
+      role: 'resident',
+      full_name: fullName,
+      is_active: true
+    });
+
+  if (profileError) {
+    console.error('Error creating profile:', profileError);
+    return {
+      success: false,
+      error: 'Auth account was created but profile setup failed. Contact support.'
+    };
+  }
+
+  return { success: true, userId: newUserId };
+}
+
+/**
+ * Admin-only: links an existing resident record to an existing auth account.
+ */
+async linkResidentToAccount(
+  residentId: string,
+  userId: string
+): Promise<{ success: boolean; error?: string }> {
+
+  const { error } = await this.supabaseService.client
+    .from('residents')
+    .update({ profile_id: userId })
+    .eq('id', residentId);
+
+  if (error) {
+    console.error('Error linking resident to account:', error);
+    return { success: false, error: 'Failed to link resident to account.' };
+  }
+
+  return { success: true };
+}
 }

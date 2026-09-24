@@ -1,22 +1,876 @@
-.error {
-  color: var(--ion-color-danger);
+/* =============================================
+   GLOBAL LAYOUT
+   ============================================= */
+.resident-detail-content {
+  --background: #f8f9fa;
+  --padding-start: 0;
+  --padding-end: 0;
+  --padding-top: 0;
+  --padding-bottom: 0;
+}
+/* ─── Input Error State ─── */
+.form-group {
+  input.input-error,
+  select.input-error {
+    border-color: #dc2626 !important;
+    background: #fef2f2;
+
+    &:focus {
+      border-color: #dc2626;
+      box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
+    }
+  }
 }
 
-.success {
-  color: var(--ion-color-success);
+.field-error {
+  display: block;
+  margin-top: 4px;
+  font-size: 12px;
+  color: #dc2626;
+  font-weight: 500;
 }
-.required-mark {
-  color: var(--ion-color-danger);
+/* =============================================
+   STICKY TOP BAR (Frosted Glass)
+   ============================================= */
+.top-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  position: sticky;
+  top: -12px;
+  z-index: 10;
+
+  margin: -32px -32px 24px -32px;
+  padding: 40px 40px 24px 40px;
+
+  background: rgba(248, 249, 250, 0.75);
+  backdrop-filter: blur(12px) saturate(180%);
+  -webkit-backdrop-filter: blur(12px) saturate(180%);
+
+  border-bottom: 1px solid rgba(238, 240, 242, 0.6);
+  transition: border-color 0.2s ease;
+
+  .page-title h1 { margin: 0; font-size: 24px; font-weight: 700; color: #111; letter-spacing: -0.3px; line-height: 1.2; }
+  .page-title p  { margin: 4px 0 0; font-size: 12px; color: #888; text-transform: uppercase; letter-spacing: 0.5px; line-height: 1.2; }
+
+  .system-status {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 13px; color: #444;
+    background: #fff; padding: 8px 16px; border-radius: 20px;
+    border: 1px solid #eef0f2;
+    white-space: nowrap;
+
+    .status-dot { width: 8px; height: 8px; background: #107c41; border-radius: 50%; flex-shrink: 0; }
+  }
 }
-.credentials-box {
-  background: var(--ion-color-success-tint);
-  padding: 16px;
+
+/* =============================================
+   FORM CONTAINER
+   ============================================= */
+.form-container {
+  max-width: 900px;
+  margin: 0 auto 40px auto;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.back-link {
+  display: inline-flex; align-items: center; gap: 8px;
+  color: #666; text-decoration: none; font-size: 14px; font-weight: 500;
+  margin-bottom: 8px;
+  &:hover { color: #107c41; }
+  ion-icon { font-size: 18px; }
+}
+
+/* =============================================
+   FORM CARDS
+   ============================================= */
+.form-card {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+  border: 1px solid #eef0f2;
+  overflow: hidden;
+
+  .card-header {
+    padding: 20px 24px;
+    border-bottom: 1px solid #eef0f2;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+
+    .card-icon {
+      width: 40px; height: 40px;
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px;
+
+      &.green  { background: #e8f5e9; color: #107c41; }
+      &.gold   { background: #fef3c7; color: #b45309; }
+      &.blue   { background: #e0f2fe; color: #0369a1; }
+      &.purple { background: #f3e8ff; color: #7c3aed; }
+    }
+
+    .card-title h3 { margin: 0; font-size: 16px; font-weight: 700; color: #111; }
+    .card-title p  { margin: 2px 0 0; font-size: 13px; color: #666; }
+  }
+
+  .card-body {
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+}
+
+/* =============================================
+   FORM ELEMENTS
+   ============================================= */
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+
+  &.full-width { grid-column: 1 / -1; }
+
+  label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #333;
+    .required { color: #dc2626; }
+  }
+
+  input[type="text"],
+  input[type="date"],
+  input[type="tel"],
+  input[type="email"],
+  select {
+    width: 100%;
+    padding: 12px 16px;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 14px;
+    color: #111;
+    background: #fff;
+    outline: none;
+    transition: border-color 0.2s;
+    font-family: inherit;
+
+    &:focus { border-color: #107c41; box-shadow: 0 0 0 3px rgba(16, 124, 65, 0.1); }
+    &::placeholder { color: #aaa; }
+  }
+
+  .select-wrapper {
+    position: relative;
+    &::after {
+      content: '';
+      position: absolute;
+      right: 16px; top: 50%; transform: translateY(-50%);
+      border-left: 5px solid transparent;
+      border-right: 5px solid transparent;
+      border-top: 5px solid #666;
+      pointer-events: none;
+    }
+    select { appearance: none; -webkit-appearance: none; padding-right: 40px; cursor: pointer; }
+  }
+
+  .hint { font-size: 12px; color: #888; }
+}
+
+/* =============================================
+   TOGGLE SWITCH
+   ============================================= */
+.toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #fafafa;
+  border: 1px solid #eef0f2;
   border-radius: 8px;
-  margin-top: 16px;
+  padding: 16px 20px;
+  margin-top: 4px;
+
+  .toggle-text {
+    display: flex; flex-direction: column; gap: 2px;
+    .toggle-title { font-size: 14px; font-weight: 600; color: #111; }
+    .toggle-desc  { font-size: 12px; color: #666; }
+  }
+
+  .switch {
+    position: relative;
+    display: inline-block;
+    width: 48px; height: 26px;
+    flex-shrink: 0;
+
+    input { opacity: 0; width: 0; height: 0; }
+
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-color: #ccc;
+      transition: .4s;
+      border-radius: 34px;
+
+      &:before {
+        position: absolute;
+        content: "";
+        height: 20px; width: 20px;
+        left: 3px; bottom: 3px;
+        background-color: white;
+        transition: .4s;
+        border-radius: 50%;
+      }
+    }
+
+    input:checked + .slider { background-color: #107c41; }
+    input:checked + .slider:before { transform: translateX(22px); }
+  }
 }
 
-hr {
-  margin: 24px 0;
-  border: none;
-  border-top: 1px solid var(--ion-color-light-shade);
+/* =============================================
+   ALERTS
+   ============================================= */
+.alert {
+  padding: 14px 20px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+
+  &.error   { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
+  &.success { background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; }
+}
+
+/* =============================================
+   FORM ACTIONS
+   ============================================= */
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding-top: 8px;
+
+  button {
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border: none;
+
+    &.btn-cancel {
+      background: #fff; color: #555;
+      border: 1px solid #e0e0e0;
+      &:hover { background: #f5f5f5; }
+    }
+
+    &.btn-submit {
+      background: #107c41; color: #fff;
+      &:hover { background: #0d6233; }
+      &:disabled { background: #a3d1b8; cursor: not-allowed; }
+      ion-icon { font-size: 18px; }
+    }
+  }
+}
+
+/* =============================================
+   MODAL (Account Creation)
+   ============================================= */
+
+ion-modal.account-modal {
+  --width: 460px;
+  --max-width: 90vw;
+  --height: auto;                    /* ← sizes modal to content — fixes empty white space */
+  --border-radius: 16px;
+  --box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  --backdrop-opacity: 0;             /* ← hide Ionic's opaque layer so blur shows through */
+}
+
+ion-modal.account-modal::part(content) {
+  border-radius: 16px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+}
+
+.modal-content {
+  padding: 32px;
+  text-align: center;
+
+  h2 { margin: 0 0 8px; font-size: 20px; font-weight: 700; color: #111; }
+  > p { margin: 0 0 24px; font-size: 14px; color: #666; line-height: 1.5; }
+}
+
+.modal-icon {
+  width: 64px; height: 64px;
+  background: #d1fae5; color: #107c41;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 20px;
+  font-size: 36px;
+
+  &.purple { background: #f3e8ff; color: #7c3aed; }
+}
+
+.modal-form {
+  text-align: left;
+  margin-bottom: 24px;
+
+  .form-group {
+    margin-bottom: 16px;
+
+    label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 6px;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px 16px;
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      font-size: 14px;
+      color: #111;
+      background: #fff;
+      outline: none;
+      transition: border-color 0.2s;
+      font-family: inherit;
+
+      &:focus { border-color: #7c3aed; box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1); }
+      &::placeholder { color: #aaa; }
+    }
+  }
+
+  .password-field {
+    display: flex;
+    gap: 8px;
+
+    input { flex: 1; }
+
+    .btn-generate {
+      display: flex; align-items: center; gap: 6px;
+      background: #f3f4f6; color: #374151;
+      border: 1px solid #e0e0e0; border-radius: 8px;
+      padding: 0 14px; font-size: 13px; font-weight: 600;
+      cursor: pointer; white-space: nowrap;
+      transition: background 0.2s;
+      &:hover { background: #e5e7eb; }
+      ion-icon { font-size: 16px; }
+    }
+  }
+
+  .alert.error {
+    background: #fef2f2;
+    color: #991b1b;
+    border: 1px solid #fecaca;
+    padding: 10px 14px;
+    border-radius: 6px;
+    font-size: 13px;
+    margin-top: 8px;
+  }
+}
+
+.credential-box {
+  background: #f8f9fa;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 16px;
+  margin-bottom: 24px;
+  text-align: left;
+
+  .credential-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid #e5e7eb;
+    gap: 12px;
+
+    &:last-child { border-bottom: none; }
+
+    .cred-label {
+      font-size: 11px; color: #666; font-weight: 600;
+      text-transform: uppercase; letter-spacing: 0.5px;
+      flex-shrink: 0;
+    }
+    .cred-value {
+      font-size: 13px; color: #111; font-weight: 600;
+      font-family: 'Monaco', 'Courier New', monospace;
+      word-break: break-all;
+      text-align: right;
+    }
+  }
+}
+
+.modal-actions {
+  display: flex;
+  gap: 12px;
+
+  button {
+    flex: 1;
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.2s;
+    border: none;
+
+    &:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    &.btn-copy {
+      background: #f3f4f6; color: #374151;
+      border: 1px solid #e0e0e0;
+      &:hover:not(:disabled) { background: #e5e7eb; }
+
+      &.copied {
+        background: #d1fae5 !important;
+        color: #065f46 !important;
+        border-color: #6ee7b7 !important;
+      }
+    }
+
+    &.btn-close {
+      background: #107c41; color: #fff;
+      &:hover:not(:disabled) { background: #0d6233; }
+    }
+  }
+}
+   
+
+/* =============================================
+   RESPONSIVE
+   ============================================= */
+@media (max-width: 768px) {
+  .form-row { grid-template-columns: 1fr; }
+  .form-actions { flex-direction: column-reverse; button { width: 100%; justify-content: center; } }
+}   
+/* =============================================
+   TWO-COLUMN LAYOUT (edit mode only)
+   ============================================= */
+.two-column-layout {
+  display: grid;
+  grid-template-columns: 1fr 380px;
+  gap: 24px;
+  align-items: start;
+
+  /* In create mode, collapse to single column */
+  &.single-column {
+    grid-template-columns: 1fr;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+}
+
+.form-column {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  min-width: 0;
+}
+
+.account-column {
+  position: sticky;
+  top: 100px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* =============================================
+   PORTAL ACCOUNT CARD
+   ============================================= */
+.portal-account-card {
+  background: #ffffff;
+
+  .card-icon.purple {
+    background: #f3e8ff;
+    color: #7c3aed;
+  }
+
+  .account-hint {
+    margin: 0 0 20px;
+    font-size: 13px;
+    color: #666;
+    line-height: 1.5;
+
+    strong { color: #111; }
+  }
+
+  .account-linked {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px;
+    background: #f0fdf4;
+    border: 1px solid #bbf7d0;
+    border-radius: 8px;
+
+    ion-icon {
+      font-size: 24px;
+      color: #107c41;
+      flex-shrink: 0;
+    }
+    strong { display: block; font-size: 14px; color: #166534; }
+    p { margin: 2px 0 0; font-size: 12px; color: #15803d; }
+  }
+
+  .password-field {
+    display: flex;
+    gap: 8px;
+    align-items: stretch;
+
+    input { flex: 1; }
+
+    .btn-generate {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 44px;
+      background: #f3f4f6;
+      color: #374151;
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.2s;
+
+      &:hover:not(:disabled) { background: #e5e7eb; }
+      &:disabled { opacity: 0.5; cursor: not-allowed; }
+      ion-icon { font-size: 18px; }
+    }
+  }
+
+  .btn-create-account {
+    width: 100%;
+    margin-top: 16px;
+    padding: 12px 20px;
+    background: #7c3aed;
+    color: #ffffff;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: background 0.2s;
+
+    &:hover:not(:disabled) { background: #6d28d9; }
+    &:disabled { background: #c4b5fd; cursor: not-allowed; }
+    ion-icon { font-size: 18px; }
+  }
+
+  .hint {
+    display: block;
+    margin-top: 6px;
+    font-size: 12px;
+    color: #888;
+  }
+}
+
+/* =============================================
+   RESPONSIVE
+   ============================================= */
+@media (max-width: 1024px) {
+  .two-column-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .account-column {
+    position: static;
+  }
+}
+/* ═══════════════════════════════════════════════════
+   MOBILE — RESIDENT DETAIL (≤ 1024px)
+   ═══════════════════════════════════════════════════ */
+@media (max-width: 1024px) {
+
+  .resident-detail-content {
+    --background: #f8f7f2;
+    background: #f8f7f2;
+  }
+
+  /* ─── FIXED HEADER ─── */
+  .top-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+
+    margin: 0;
+    padding: 20px 150px 18px 24px;
+    min-height: 78px;
+    box-sizing: border-box;
+
+    background: rgba(248, 247, 242, 0.75);
+    backdrop-filter: blur(16px) saturate(180%);
+    -webkit-backdrop-filter: blur(16px) saturate(180%);
+    border-bottom: 1px solid rgba(238, 234, 226, 0.6);
+
+    .page-title h1 {
+      margin: 0;
+      font-size: 24px;
+      font-weight: 700;
+      color: #111;
+      letter-spacing: -0.4px;
+      line-height: 1.15;
+    }
+
+    .page-title p {
+      margin: 4px 0 0;
+      font-size: 12px;
+      color: #888;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      line-height: 1.2;
+    }
+
+    .system-status { display: none; }
+  }
+
+  /* ─── FORM CONTAINER ─── */
+  .form-container {
+    max-width: 100%;
+    margin: 0;
+    padding: 96px 24px 120px 24px;
+    gap: 16px;
+  }
+
+  /* ─── BACK LINK ─── */
+  .back-link {
+    margin-bottom: 4px;
+    font-size: 15px;
+  }
+
+  /* ─── FORM CARDS ─── */
+  .form-card {
+    border-radius: 16px;
+    border: 1px solid #e9e5dc;
+    box-shadow: none;
+
+    .card-header {
+      padding: 18px 20px;
+      gap: 14px;
+
+      .card-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        font-size: 20px;
+      }
+
+      .card-title h3 { font-size: 17px; font-weight: 700; color: #111; }
+      .card-title p  { font-size: 13px; color: #6b6a66; }
+    }
+
+    .card-body {
+      padding: 20px;
+      gap: 16px;
+    }
+  }
+
+  /* ─── FORM ROWS ─── */
+  .form-row {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  /* ─── FORM ELEMENTS ─── */
+  .form-group {
+    label { font-size: 14px; font-weight: 600; color: #111; }
+
+    input[type="text"],
+    input[type="date"],
+    input[type="tel"],
+    input[type="email"],
+    select {
+      padding: 14px 16px;
+      font-size: 15px;
+      border: 1px solid #e0dcd3;
+      border-radius: 10px;
+      background: #ffffff;
+
+      &:focus {
+        border-color: #107c41;
+        box-shadow: 0 0 0 3px rgba(16, 124, 65, 0.1);
+      }
+      &::placeholder { color: #a8a6a0; }
+    }
+
+    .hint { font-size: 13px; color: #888; }
+  }
+
+  /* ─── TOGGLE SWITCH ─── */
+  .toggle-row {
+    padding: 16px 18px;
+    border-radius: 12px;
+    background: #fafaf7;
+    border: 1px solid #e9e5dc;
+
+    .toggle-text {
+      .toggle-title { font-size: 15px; }
+      .toggle-desc  { font-size: 13px; line-height: 1.4; }
+    }
+
+    .switch {
+      width: 52px;
+      height: 30px;
+
+      .slider:before { height: 24px; width: 24px; }
+      input:checked + .slider:before { transform: translateX(22px); }
+    }
+  }
+
+  /* ─── ALERTS ─── */
+  .alert {
+    padding: 14px 18px;
+    border-radius: 12px;
+    font-size: 14px;
+  }
+
+  /* ─── FORM ACTIONS ─── */
+  .form-actions {
+    flex-direction: column-reverse;
+    gap: 10px;
+    padding-top: 8px;
+    padding-bottom: 20px;
+
+    button {
+      width: 100%;
+      justify-content: center;
+      padding: 16px 24px;
+      font-size: 15px;
+      font-weight: 600;
+      border-radius: 12px;
+
+      &.btn-cancel {
+        background: #ffffff;
+        border: 1px solid #e0dcd3;
+        color: #555;
+      }
+
+      &.btn-submit {
+        background: #107c41;
+        color: #ffffff;
+        border: none;
+      }
+    }
+  }
+
+  /* ─── PORTAL ACCOUNT CARD ─── */
+  .portal-account-card {
+    .account-hint { font-size: 13px; line-height: 1.5; }
+
+    .account-linked {
+      padding: 16px;
+      border-radius: 12px;
+
+      ion-icon { font-size: 26px; }
+      strong { font-size: 15px; }
+      p { font-size: 13px; }
+    }
+
+    .password-field {
+      gap: 10px;
+      input { flex: 1; }
+
+      .btn-generate {
+        width: 48px;
+        border-radius: 10px;
+        border: 1px solid #e0dcd3;
+        background: #fafaf7;
+        ion-icon { font-size: 20px; }
+      }
+    }
+
+    .btn-create-account {
+      padding: 16px 20px;
+      font-size: 15px;
+      border-radius: 12px;
+
+      ion-icon { font-size: 20px; }
+    }
+  }
+}
+
+/* ═══════════════════════════════════════════════════
+   SMALL MOBILE (≤ 480px)
+   ═══════════════════════════════════════════════════ */
+@media (max-width: 480px) {
+
+  .top-bar {
+    padding: 18px 120px 16px 16px;
+    min-height: 72px;
+
+    .page-title h1 { font-size: 20px; }
+    .page-title p  { font-size: 10px; }
+  }
+
+  .form-container {
+    padding: 88px 16px 110px 16px;
+    gap: 14px;
+  }
+
+  .form-card {
+    border-radius: 14px;
+
+    .card-header {
+      padding: 16px 18px;
+
+      .card-title h3 { font-size: 16px; }
+      .card-title p  { font-size: 12px; }
+    }
+
+    .card-body {
+      padding: 18px;
+      gap: 14px;
+    }
+  }
+
+  .form-group {
+    label { font-size: 13px; }
+
+    input[type="text"],
+    input[type="date"],
+    input[type="tel"],
+    input[type="email"],
+    select {
+      padding: 12px 14px;
+      font-size: 14px;
+      border-radius: 9px;
+    }
+  }
+
+  .form-actions {
+    button {
+      padding: 14px 20px;
+      font-size: 14px;
+      border-radius: 10px;
+    }
+  }
 }

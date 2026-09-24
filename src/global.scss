@@ -42,3 +42,16 @@ ion-content {
   --padding-top: 0 !important;
   --padding-bottom: 0 !important;
 }
+ion-modal.account-modal {
+  --backdrop-opacity: 0 !important;
+}
+
+ion-modal.account-modal::part(backdrop) {
+  background: rgba(0, 0, 0, 0.15) !important;
+  backdrop-filter: blur(20px) saturate(140%) !important;
+  -webkit-backdrop-filter: blur(20px) saturate(140%) !important;
+  position: fixed !important;
+  inset: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+}

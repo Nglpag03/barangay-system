@@ -26,16 +26,6 @@ import { Router, RouterLink } from '@angular/router';
     CommonModule,
     FormsModule,
     IonContent,
-    IonInput,
-    IonButton,
-    IonItem,
-    IonLabel,
-    IonCard,
-    IonCardHeader,
-    IonCardTitle,
-    IonCardContent,
-    IonText,
-    IonSpinner,
     RouterLink
   ]
 })

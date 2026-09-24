@@ -1,172 +1,290 @@
-<ion-header>
-  <ion-toolbar>
-    <ion-buttons slot="start">
-      <ion-back-button defaultHref="/admin/residents"></ion-back-button>
-    </ion-buttons>
-    <ion-title>{{ isNew ? 'Add Resident' : 'Resident Details' }}</ion-title>
-  </ion-toolbar>
-</ion-header>
+<ion-content [fullscreen]="true" class="resident-detail-content">
 
-<ion-content class="ion-padding">
+  <header class="top-bar">
+    <div class="page-title">
+      <h1>{{ isNew ? 'Register Resident' : 'Resident Details' }}</h1>
+      <p>THURSDAY, SEPTEMBER 24, 2026</p>
+    </div>
+    <div class="system-status">
+      <span class="status-dot"></span> System Online
+    </div>
+  </header>
 
-  <div *ngIf="loading">
-    <p>Loading resident...</p>
-  </div>
+  <div class="form-container">
 
-  <div *ngIf="!loading && !isNew && !resident">
-    <p>Resident not found.</p>
-  </div>
+    <a routerLink="/admin/residents" class="back-link">
+      <ion-icon name="arrow-back-outline"></ion-icon> Back to Residents
+    </a>
 
-  <div *ngIf="!loading && (isNew || resident)">
+    <!-- ═══════ TWO-COLUMN LAYOUT (only in edit mode) ═══════ -->
+    <div class="two-column-layout" [class.single-column]="isNew">
 
-    <ion-item>
-      <ion-label position="stacked">Resident Number <span class="required-mark">*</span></ion-label>
-      <ion-input [(ngModel)]="residentNumber" type="text" placeholder="e.g. RES-0002"></ion-input>
-    </ion-item>
+      <!-- ═══════ LEFT COLUMN: Form (always) ═══════ -->
+      <div class="form-column">
 
-    <ion-item>
-      <ion-label position="stacked">First Name <span class="required-mark">*</span></ion-label>
-      <ion-input [(ngModel)]="firstName" type="text"></ion-input>
-    </ion-item>
+        <!-- SECTION 1: PERSONAL INFORMATION -->
+        <div class="form-card">
+          <div class="card-header">
+            <div class="card-icon green">
+              <ion-icon name="person-outline"></ion-icon>
+            </div>
+            <div class="card-title">
+              <h3>Personal Information</h3>
+              <p>Name and registry identifiers.</p>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="form-group full-width">
+              <label>Resident Number <span class="required">*</span></label>
+              <input type="text"
+           [(ngModel)]="residentNumber"
+           (blur)="markTouched('residentNumber')"
+           [class.input-error]="hasError('residentNumber', residentNumber)"
+           placeholder="RES-2024-0013">
+                  <span class="field-error" *ngIf="hasError('residentNumber', residentNumber)">
+      Resident number is required.
+    </span>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>First Name <span class="required">*</span></label>
+                <input type="text"
+             [(ngModel)]="firstName"
+             (blur)="markTouched('firstName')"
+             [class.input-error]="hasError('firstName', firstName)"
+             placeholder="Juan">
+                   <span class="field-error" *ngIf="hasError('firstName', firstName)">
+        First name is required.
+      </span>
+              </div>
+              <div class="form-group">
+                <label>Middle Name</label>
+                <input type="text" [(ngModel)]="middleName" placeholder="Optional">
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Last Name <span class="required">*</span></label>
+                <input type="text"
+             [(ngModel)]="lastName"
+             (blur)="markTouched('lastName')"
+             [class.input-error]="hasError('lastName', lastName)"
+             placeholder="dela Cruz">
+                   <span class="field-error" *ngIf="hasError('lastName', lastName)">
+        Last name is required.
+      </span>
+              </div>
+              <div class="form-group">
+                <label>Suffix</label>
+                <input type="text" [(ngModel)]="suffix" placeholder="Jr., Sr., III">
+              </div>
+            </div>
+          </div>
+        </div>
 
-    <ion-item>
-      <ion-label position="stacked">Middle Name</ion-label>
-      <ion-input [(ngModel)]="middleName" type="text"></ion-input>
-    </ion-item>
+        <!-- SECTION 2: DEMOGRAPHICS -->
+        <div class="form-card">
+          <div class="card-header">
+            <div class="card-icon gold">
+              <ion-icon name="calendar-outline"></ion-icon>
+            </div>
+            <div class="card-title">
+              <h3>Demographics</h3>
+              <p>Birth details and civil status.</p>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="form-row">
+              <div class="form-group">
+                <label>Birth Date <span class="required">*</span></label>
+                      <input type="date"
+             [(ngModel)]="birthDate"
+             (blur)="markTouched('birthDate')"
+             [class.input-error]="hasError('birthDate', birthDate)">
+      <span class="field-error" *ngIf="hasError('birthDate', birthDate)">
+                Birth date is required.
+      </span> 
+              </div>
+              <div class="form-group">
+                <label>Birth Place</label>
+                <input type="text" [(ngModel)]="birthPlace" placeholder="City / Municipality">
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Sex <span class="required">*</span></label>
+                <div class="select-wrapper">
+                  <select [(ngModel)]="sex" [class.input-error]="hasError('sex', sex)">
+                    <option value="male">Male</option>
+                    <option value="female">Female</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-group">
+                <label>Civil Status <span class="required">*</span></label>
+                <div class="select-wrapper">
+                  <select [(ngModel)]="civilStatus" [class.input-error]="hasError('civilStatus', civilStatus)">
+                    <option value="single">Single</option>
+                    <option value="married">Married</option>
+                    <option value="widowed">Widowed</option>
+                    <option value="separated">Separated</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
 
-    <ion-item>
-      <ion-label position="stacked">Last Name <span class="required-mark">*</span></ion-label>
-      <ion-input [(ngModel)]="lastName" type="text"></ion-input>
-    </ion-item>
+        <!-- SECTION 3: CONTACT & HOUSEHOLD -->
+        <div class="form-card">
+          <div class="card-header">
+            <div class="card-icon blue">
+              <ion-icon name="call-outline"></ion-icon>
+            </div>
+            <div class="card-title">
+              <h3>Contact & Household</h3>
+              <p>Reachability and household linkage.</p>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="form-row">
+              <div class="form-group">
+                <label>Contact Number</label>
+                <input type="tel"
+         inputmode="tel"
+         maxlength="20"
+         [(ngModel)]="contactNumber"
+         (input)="onPhoneInput($event)"
+         (blur)="onPhoneBlur()"
+         [class.input-error]="phoneHasError"
+         placeholder="+63 917 123 4567">
+           <span class="field-error" *ngIf="phoneHasError">
+    Enter a valid phone number (7–15 digits).
+  </span>
+    <span class="hint" *ngIf="!phoneHasError">
+    Any format works — local or international.
+  </span>
+              </div>
+              <div class="form-group">
+                <label>Occupation</label>
+                <input type="text" [(ngModel)]="occupation" placeholder="e.g. Fisherman">
+              </div>
+            </div>
+            <div class="form-group full-width">
+              <label>Household</label>
+              <div class="select-wrapper">
+                <select [(ngModel)]="householdId">
+                  <option [ngValue]="null">No household assigned</option>
+                  <option *ngFor="let h of households" [ngValue]="h.id">
+                    {{ h.household_number }}
+                  </option>
+                </select>
+              </div>
+            </div>
+            <div class="toggle-row">
+              <div class="toggle-text">
+                <span class="toggle-title">Active resident record</span>
+                <span class="toggle-desc">Inactive records stay in the registry but are excluded from active counts.</span>
+              </div>
+              <label class="switch">
+                <input type="checkbox" [(ngModel)]="isActive">
+                <span class="slider round"></span>
+              </label>
+            </div>
+          </div>
+        </div>
 
-    <ion-item>
-      <ion-label position="stacked">Suffix</ion-label>
-      <ion-input [(ngModel)]="suffix" type="text" placeholder="e.g. Jr., Sr., III"></ion-input>
-    </ion-item>
-
-    <ion-item>
-      <ion-label position="stacked">Birth Date <span class="required-mark">*</span></ion-label>
-      <ion-input [(ngModel)]="birthDate" type="date"></ion-input>
-    </ion-item>
-
-    <ion-item>
-      <ion-label position="stacked">Birth Place</ion-label>
-      <ion-input [(ngModel)]="birthPlace" type="text"></ion-input>
-    </ion-item>
-
-    <ion-item>
-      <ion-label position="stacked">Sex <span class="required-mark">*</span></ion-label>
-      <ion-select [(ngModel)]="sex">
-        <ion-select-option value="male">Male</ion-select-option>
-        <ion-select-option value="female">Female</ion-select-option>
-      </ion-select>
-    </ion-item>
-
-    <ion-item>
-      <ion-label position="stacked">Civil Status <span class="required-mark">*</span></ion-label>
-      <ion-select [(ngModel)]="civilStatus">
-        <ion-select-option value="single">Single</ion-select-option>
-        <ion-select-option value="married">Married</ion-select-option>
-        <ion-select-option value="widowed">Widowed</ion-select-option>
-        <ion-select-option value="separated">Separated</ion-select-option>
-      </ion-select>
-    </ion-item>
-
-    <ion-item>
-      <ion-label position="stacked">Contact Number</ion-label>
-      <ion-input [(ngModel)]="contactNumber" type="tel" pattern="[0-9]*"></ion-input>
-    </ion-item>
-
-    <ion-item>
-      <ion-label position="stacked">Occupation</ion-label>
-      <ion-input [(ngModel)]="occupation" type="text"></ion-input>
-    </ion-item>
-
-    <ion-item>
-      <ion-checkbox [(ngModel)]="isActive">Active resident</ion-checkbox>
-    </ion-item>
-
-    <ion-item>
-      <ion-label position="stacked">Household</ion-label>
-      <ion-select [(ngModel)]="householdId" placeholder="No household assigned">
-        <ion-select-option [value]="null">No household assigned</ion-select-option>
-        <ion-select-option
-          *ngFor="let household of households"
-          [value]="household.id">
-          {{ household.household_number }} — {{ household.barangay }}
-        </ion-select-option>
-      </ion-select>
-    </ion-item>
-
-    <ion-item>
-      <ion-label position="stacked">Household</ion-label>
-      <ion-select [(ngModel)]="householdId" placeholder="No household assigned">
-        <ion-select-option [value]="null">No household assigned</ion-select-option>
-        <ion-select-option
-          *ngFor="let household of households"
-          [value]="household.id">
-          {{ household.household_number }} — {{ household.barangay }}
-        </ion-select-option>
-      </ion-select>
-    </ion-item>
-
-    <ion-button
-      expand="block"
-      [disabled]="saving || !isFormValid"
-      (click)="save()">
-      {{ saving ? 'Saving...' : (isNew ? 'Create Resident' : 'Save Changes') }}
-    </ion-button>
-
-    <p class="error" *ngIf="saveError">{{ saveError }}</p>
-    <p class="success" *ngIf="saveSuccess">Saved successfully.</p>
-
-    <!-- Login account section — only shown for existing residents -->
-    <div *ngIf="!isNew && resident">
-
-      <hr />
-
-      <div *ngIf="resident.profile_id && !createdCredentials">
-        <h3>Login Account</h3>
-        <p>This resident already has a login account linked.</p>
       </div>
 
-      <div *ngIf="!resident.profile_id && !createdCredentials">
-        <h3>Create Login Account</h3>
-        <p>This resident does not have a login account yet.</p>
+      <!-- ═══════ RIGHT COLUMN: Portal Account (EDIT MODE ONLY) ═══════ -->
+      <div class="account-column" *ngIf="!isNew">
+        <div class="form-card portal-account-card">
 
-        <ion-item>
-          <ion-label position="stacked">Email</ion-label>
-          <ion-input [(ngModel)]="accountEmail" type="email" placeholder="resident@example.com"></ion-input>
-        </ion-item>
+          <!-- HEADER -->
+          <div class="card-header">
+            <div class="card-icon purple">
+              <ion-icon name="key-outline"></ion-icon>
+            </div>
+            <div class="card-title">
+              <h3>Portal Account</h3>
+              <p>Give this resident access to the portal.</p>
+            </div>
+          </div>
 
-        <ion-item>
-          <ion-label position="stacked">Password</ion-label>
-          <ion-input [(ngModel)]="accountPassword" type="text" placeholder="At least 6 characters"></ion-input>
-        </ion-item>
+          <!-- STATE A: Account already linked -->
+          <div class="card-body" *ngIf="resident?.profile_id">
+            <div class="account-linked">
+              <ion-icon name="checkmark-circle-outline"></ion-icon>
+              <div>
+                <strong>Account linked</strong>
+                <p>This resident has an active login.</p>
+              </div>
+            </div>
+          </div>
 
-        <ion-button expand="block" fill="outline" (click)="generatePassword()">
-          Generate Random Password
-        </ion-button>
+          <!-- STATE B: No account yet — show inputs -->
+          <div class="card-body" *ngIf="!resident?.profile_id">
+            <p class="account-hint">
+              Creating an account links a login to
+              <strong>{{ firstName || 'this resident' }} {{ lastName }}</strong>.
+              Share the email and password with the resident so they can sign in.
+            </p>
 
-        <ion-button
-          expand="block"
-          [disabled]="creatingAccount || !isAccountFormValid"
-          (click)="createAccount()">
-          {{ creatingAccount ? 'Creating...' : 'Create Login Account' }}
-        </ion-button>
+            <div class="form-group">
+              <label>Email Address</label>
+              <input type="email"
+                     [ngModel]="accountEmail"
+                     (ngModelChange)="accountEmail = $event"
+                     placeholder="resident@example.com"
+                     [disabled]="creatingAccount">
+            </div>
 
-        <p class="error" *ngIf="accountError">{{ accountError }}</p>
-      </div>
+            <div class="form-group">
+              <label>Password</label>
+              <div class="password-field">
+                <input type="text"
+                       [ngModel]="accountPassword"
+                       (ngModelChange)="accountPassword = $event"
+                       placeholder="Temporary password"
+                       [disabled]="creatingAccount">
+                <button type="button" class="btn-generate"
+                        (click)="generatePassword()"
+                        [disabled]="creatingAccount">
+                  <ion-icon name="refresh-outline"></ion-icon>
+                </button>
+              </div>
+              <span class="hint">At least 6 characters.</span>
+            </div>
 
-      <div *ngIf="createdCredentials" class="credentials-box">
-        <h3>Account Created</h3>
-        <p><strong>Write these down now — the password cannot be viewed again after you leave this page.</strong></p>
-        <p><strong>Email:</strong> {{ createdCredentials.email }}</p>
-        <p><strong>Password:</strong> {{ createdCredentials.password }}</p>
+            <div class="alert error" *ngIf="accountError">{{ accountError }}</div>
+
+            <button class="btn-create-account"
+                    (click)="createAccountForExistingResident()"
+                    [disabled]="!isAccountFormValid || creatingAccount">
+              <ion-icon name="person-add-outline"></ion-icon>
+              {{ creatingAccount ? 'Creating...' : 'Create Account' }}
+            </button>
+          </div>
+
+        </div>
       </div>
 
     </div>
 
-  </div>
+    <!-- ═══════ FEEDBACK ═══════ -->
+    <div class="alert error" *ngIf="saveError">{{ saveError }}</div>
+    <div class="alert success" *ngIf="saveSuccess">Resident saved successfully.</div>
 
+    <!-- ═══════ ACTIONS ═══════ -->
+    <div class="form-actions">
+      <button class="btn-cancel" routerLink="/admin/residents">Cancel</button>
+      <button class="btn-submit" (click)="save()"
+              [disabled]="!isFormValid || saving || (isNew && !isAccountFormValid)">
+        <ion-icon name="person-add-outline" *ngIf="isNew"></ion-icon>
+        <ion-icon name="save-outline" *ngIf="!isNew"></ion-icon>
+        {{ saving ? 'Saving...' : (isNew ? 'Create Resident' : 'Save Changes') }}
+      </button>
+    </div>
+
+  </div>
 </ion-content>

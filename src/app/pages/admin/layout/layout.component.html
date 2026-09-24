@@ -1,0 +1,157 @@
+<ion-content [fullscreen]="true" class="admin-shell">
+  <div class="layout-container">
+
+    <!-- SIDEBAR (persistent across all admin pages) -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="logo-area">
+          <div class="logo-icon"><ion-icon name="home-outline"></ion-icon></div>
+          <div class="logo-text">
+            <h2>Barangay</h2>
+            <p>Calintaan · System</p>
+          </div>
+        </div>
+        <button class="collapse-btn">
+          <ion-icon name="chevron-back-outline"></ion-icon>
+        </button>
+      </div>
+
+      <nav class="sidebar-nav">
+        <a routerLink="/admin/dashboard"
+           routerLinkActive="active"
+           [routerLinkActiveOptions]="{ exact: true }"
+           class="nav-item">
+          <ion-icon name="home-outline"></ion-icon> <span>Dashboard</span>
+        </a>
+
+        <a routerLink="/admin/residents"
+           routerLinkActive="active"
+           class="nav-item">
+          <ion-icon name="people-outline"></ion-icon> <span>Residents</span>
+        </a>
+
+        <a routerLink="/admin/households"
+           routerLinkActive="active"
+           class="nav-item">
+          <ion-icon name="home-outline"></ion-icon> <span>Households</span>
+        </a>
+
+        <a routerLink="/admin/requests"
+           routerLinkActive="active"
+           class="nav-item">
+          <ion-icon name="document-text-outline"></ion-icon> <span>Requests</span>
+        </a>
+
+        <a routerLink="/admin/documents"
+           routerLinkActive="active"
+           class="nav-item">
+          <ion-icon name="file-tray-stacked-outline"></ion-icon> <span>Documents</span>
+        </a>
+
+        <a routerLink="/admin/audit-logs"
+           routerLinkActive="active"
+           class="nav-item">
+          <ion-icon name="clipboard-outline"></ion-icon> <span>Audit Logs</span>
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="user-profile">
+          <div class="avatar">{{ currentUserName.charAt(0) }}</div>
+          <div class="user-info">
+            <h4>{{ currentUserName }}</h4>
+            <p>{{ currentUserRole }}</p>
+          </div>
+        </div>
+        <button class="logout-btn" (click)="logout()">
+          <ion-icon name="log-out-outline"></ion-icon>
+        </button>
+      </div>
+    </aside>
+
+    <!-- ROUTED PAGE CONTENT -->
+    <main class="main-content">
+      <router-outlet></router-outlet>
+    </main>
+
+  </div>
+</ion-content>
+<div class="custom-modal-overlay" *ngIf="accountModal.show()" (click)="accountModal.close()">
+  <div class="custom-modal-card" (click)="$event.stopPropagation()">
+
+    <!-- STATE 1: INPUT FORM -->
+    <div class="modal-content" *ngIf="!accountModal.credentials()">
+      <div class="modal-icon purple">
+        <ion-icon name="key-outline"></ion-icon>
+      </div>
+
+      <h2>Create Login Account</h2>
+      <p>Every resident must have a login account. Set up the credentials below.</p>
+
+      <div class="modal-form">
+        <div class="form-group">
+          <label>Email Address</label>
+          <input type="email" [ngModel]="accountModal.email()"
+                 (ngModelChange)="accountModal.email.set($event)"
+                 placeholder="resident@example.com">
+        </div>
+
+        <div class="form-group">
+          <label>Password</label>
+          <div class="password-field">
+            <input type="text" [ngModel]="accountModal.password()"
+                   (ngModelChange)="accountModal.password.set($event)"
+                   placeholder="Min 6 characters">
+            <button type="button" class="btn-generate" (click)="accountModal.generatePassword()">
+              <ion-icon name="refresh-outline"></ion-icon> Generate
+            </button>
+          </div>
+        </div>
+
+        <div class="alert error" *ngIf="accountModal.error()">{{ accountModal.error() }}</div>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn-copy" (click)="accountModal.close()" [disabled]="accountModal.creating()">
+          Cancel
+        </button>
+        <button class="btn-close" (click)="accountModal.submit()"
+                [disabled]="!accountModal.isFormValid || accountModal.creating()">
+          <ion-icon name="key-outline"></ion-icon>
+          {{ accountModal.creating() ? 'Creating...' : 'Create Account' }}
+        </button>
+      </div>
+    </div>
+
+    <!-- STATE 2: SUCCESS -->
+    <div class="modal-content" *ngIf="accountModal.credentials() as creds">
+      <div class="modal-icon">
+        <ion-icon name="checkmark-circle-outline"></ion-icon>
+      </div>
+
+      <h2>Account Created!</h2>
+      <p>Save these credentials — the password cannot be shown again.</p>
+
+      <div class="credential-box">
+        <div class="credential-row">
+          <span class="cred-label">Email</span>
+          <span class="cred-value">{{ creds.email }}</span>
+        </div>
+        <div class="credential-row">
+          <span class="cred-label">Password</span>
+          <span class="cred-value">{{ creds.password }}</span>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn-copy" (click)="accountModal.copyCredentials()"
+                [class.copied]="accountModal.copied()">
+          <ion-icon [name]="accountModal.copied() ? 'checkmark-outline' : 'copy-outline'"></ion-icon>
+          {{ accountModal.copied() ? 'Copied!' : 'Copy' }}
+        </button>
+        <button class="btn-close" (click)="closeModalAndNavigate()">Done</button>
+      </div>
+    </div>
+
+  </div>
+</div>

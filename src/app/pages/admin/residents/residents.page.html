@@ -1,51 +1,109 @@
-<ion-header>
-  <ion-toolbar>
-    <ion-buttons slot="start">
-      <ion-back-button defaultHref="/admin/dashboard"></ion-back-button>
-    </ion-buttons>
-    <ion-title>Residents</ion-title>
-  </ion-toolbar>
-</ion-header>
+<ion-content [fullscreen]="true" class="residents-content">
 
-<ion-content class="ion-padding">
+  <!-- TOP BAR -->
+  <header class="top-bar">
+    <div class="page-title">
+      <h1>Residents</h1>
+      <p>{{ todayDate }}</p>
+    </div>
+    <div class="system-status">
+      <span class="status-dot"></span> System Online
+    </div>
+  </header>
 
-  <ion-button
-    expand="block"
-    routerLink="/admin/residents/new">
-    + Add Resident
-  </ion-button>  
-
-<ion-searchbar
-  [(ngModel)]="searchTerm"
-  (ionInput)="onSearchChange($event)"
-  placeholder="Search by name or resident number">
-</ion-searchbar>
-
-  <div *ngIf="loading">
-    <p>Loading residents...</p>
+  <!-- PAGE HEADER -->
+  <div class="page-header">
+    <div class="header-info">
+      <h2>Resident Registry
+        <span class="count-badge">{{ filteredResidents.length }} residents</span>
+      </h2>
+      <p>Search and manage the barangay resident records.</p>
+    </div>
+    <button class="btn-primary" routerLink="/admin/residents/new">
+      <ion-icon name="person-add-outline"></ion-icon> Register Resident
+    </button>
   </div>
 
-  <div *ngIf="!loading && loadError" class="load-error">
-    <p>Couldn't load residents. Please check your connection and try again.</p>
-    <ion-button expand="block" fill="outline" (click)="loadResidents()">Retry</ion-button>
+  <!-- CONTROLS ROW -->
+  <div class="controls-row">
+    <div class="search-wrapper">
+      <ion-icon name="search-outline"></ion-icon>
+      <input type="text"
+             placeholder="Search by name or resident number"
+             (input)="onSearchChange($event)">
+    </div>
+
+    <div class="filter-tabs">
+      <button [class.active]="activeFilter === 'all'"      (click)="setFilter('all')">All</button>
+      <button [class.active]="activeFilter === 'active'"   (click)="setFilter('active')">Active</button>
+      <button [class.active]="activeFilter === 'inactive'" (click)="setFilter('inactive')">Inactive</button>
+    </div>
   </div>
 
-  <div *ngIf="!loading && !loadError && filteredResidents.length === 0">
-    <p>No residents found.</p>
+  <!-- LOADING STATE -->
+  <div class="loading-state" *ngIf="loading">
+    <ion-spinner name="crescent"></ion-spinner>
   </div>
 
-  <ion-list *ngIf="!loading && !loadError && filteredResidents.length > 0">
-<ion-item
-  *ngFor="let resident of filteredResidents"
-  button="true"
-  [routerLink]="['/admin/residents', resident.id]">
-  <ion-label>
-    <h2>{{ resident.last_name }}, {{ resident.first_name }} {{ resident.middle_name }}</h2>
-    <p>Resident #: {{ resident.resident_number }}</p>
-    <p>Sex: {{ resident.sex }} • Civil Status: {{ resident.civil_status }}</p>
-    <p *ngIf="!resident.is_active" class="inactive-tag">Inactive</p>
-  </ion-label>
-</ion-item>
-  </ion-list>
+  <!-- TABLE / CARD LIST -->
+  <div class="table-panel" *ngIf="!loading">
+    <table>
+      <thead>
+        <tr>
+          <th>RESIDENT</th>
+          <th>RESIDENT NO.</th>
+          <th>PUROK</th>
+          <th>CONTACT</th>
+          <th>STATUS</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let resident of filteredResidents"
+            (click)="onRowClick(resident)"
+            class="resident-row">
+
+          <td class="cell-resident">
+            <div class="avatar-circle">
+              {{ getInitials(resident.first_name, resident.last_name) }}
+            </div>
+            <div class="resident-details">
+              <span class="name">
+                {{ resident.first_name }} {{ resident.middle_name }} {{ resident.last_name }} {{ resident.suffix }}
+              </span>
+              <span class="meta">
+                {{ resident.sex | titlecase }} · {{ getAge(resident.birth_date) }} yrs · {{ resident.civil_status | titlecase }}
+              </span>
+            </div>
+          </td>
+
+          <td class="cell-id">
+            <span class="mobile-label">RESIDENT NO.</span>
+            {{ resident.resident_number }}
+          </td>
+
+          <td class="cell-purok">
+            <span class="mobile-label">PUROK</span>
+            {{ resident.household_id ? 'Assigned' : 'N/A' }}
+          </td>
+
+          <td class="cell-contact">
+            <span class="mobile-label">CONTACT</span>
+            {{ resident.contact_number || 'N/A' }}
+          </td>
+
+          <td class="cell-status">
+            <span class="badge" [ngClass]="getStatus(resident).toLowerCase()">
+              {{ getStatus(resident) }}
+            </span>
+          </td>
+
+        </tr>
+
+        <tr *ngIf="filteredResidents.length === 0">
+          <td colspan="5" class="empty-state">No residents found matching your criteria.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 
 </ion-content>
