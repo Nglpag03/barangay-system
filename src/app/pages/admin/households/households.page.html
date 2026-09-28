@@ -1,47 +1,176 @@
-<ion-header>
-  <ion-toolbar>
-    <ion-buttons slot="start">
-      <ion-back-button defaultHref="/admin/dashboard"></ion-back-button>
-    </ion-buttons>
-    <ion-title>Households</ion-title>
-  </ion-toolbar>
-</ion-header>
+<ion-content [fullscreen]="true" class="residents-content">
+  <div class="households-page">
 
-<ion-content class="ion-padding">
+    <!-- TOP BAR (matches Residents) -->
+    <header class="top-bar">
+      <div class="page-title">
+        <h1>Households</h1>
+        <p>{{ todayDate }}</p>
+      </div>
+      <div class="system-status">
+        <span class="status-dot"></span> System Online
+      </div>
+    </header>
 
-  <ion-button
-    expand="block"
-    routerLink="/admin/households/new">
-    + Add Household
-  </ion-button>
+    <!-- PAGE HEADER (matches Residents) -->
+    <div class="page-header">
+      <div class="header-info">
+        <h2>
+          Household Registry
+          <span class="count-badge">{{ totalCount }} households</span>
+        </h2>
+        <p>Manage and track registered households in Barangay Calintaan.</p>
+      </div>
+      <button class="btn-primary" routerLink="/admin/households/new" type="button">
+        <ion-icon name="add-outline"></ion-icon>
+        Add Household
+      </button>
+    </div>
 
-  <div *ngIf="loading">
-    <p>Loading households...</p>
+    <!-- STAT CARDS (Households-specific, keeps existing look) -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon green"><ion-icon name="home-outline"></ion-icon></div>
+        <div class="stat-body">
+          <span class="stat-label">Total Households</span>
+          <span class="stat-value">{{ totalCount }}</span>
+          <span class="stat-sub">Registered</span>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon blue"><ion-icon name="map-outline"></ion-icon></div>
+        <div class="stat-body">
+          <span class="stat-label">Puroks</span>
+          <span class="stat-value">{{ purokCount }}</span>
+          <span class="stat-sub">Unique puroks</span>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon purple"><ion-icon name="location-outline"></ion-icon></div>
+        <div class="stat-body">
+          <span class="stat-label">Streets</span>
+          <span class="stat-value">{{ streetCount }}</span>
+          <span class="stat-sub">Named streets</span>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon amber"><ion-icon name="business-outline"></ion-icon></div>
+        <div class="stat-body">
+          <span class="stat-label">Municipality</span>
+          <span class="stat-value" style="font-size: 18px;">
+            {{ households[0]?.municipality || '—' }}
+          </span>
+          <span class="stat-sub">{{ households[0]?.province || 'Barangay Calintaan' }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- CONTROLS (matches Residents) -->
+    <div class="controls-row">
+      <div class="search-wrapper">
+        <ion-icon name="search-outline"></ion-icon>
+        <input
+          type="text"
+          placeholder="Search by name, address, ID…"
+          [(ngModel)]="searchQuery"
+          (ngModelChange)="onSearch()">
+      </div>
+
+      <div class="filter-tabs">
+        <button type="button" [class.active]="statusFilter === 'All'"      (click)="setFilter('All')">All</button>
+        <button type="button" [class.active]="statusFilter === 'Active'"   (click)="setFilter('Active')">Active</button>
+        <button type="button" [class.active]="statusFilter === 'Inactive'" (click)="setFilter('Inactive')">Inactive</button>
+      </div>
+    </div>
+
+    <!-- TABLE PANEL (matches Residents) -->
+    <div class="table-panel">
+      <table>
+        <thead>
+          <tr>
+            <th (click)="sortBy('household_number')">Household No.</th>
+            <th>Address</th>
+            <th (click)="sortBy('purok')">Purok</th>
+            <th (click)="sortBy('barangay')">Barangay</th>
+            <th (click)="sortBy('created_at')">Registered</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngIf="paginated.length === 0">
+            <td colspan="6" class="empty-state">No households found</td>
+          </tr>
+
+          <tr *ngFor="let hh of paginated; let i = index" class="household-row" [class.alt]="i % 2 !== 0">
+            <td class="cell-id">
+              <span class="mobile-label">ID</span>
+              <span class="hh-id">{{ hh.household_number }}</span>
+            </td>
+            <td class="cell-address">
+              <span class="mobile-label">Address</span>
+              {{ formatAddress(hh) }}
+            </td>
+            <td class="cell-purok">
+              <span class="mobile-label">Purok</span>
+              {{ hh.purok }}
+            </td>
+            <td class="cell-barangay">
+              <span class="mobile-label">Barangay</span>
+              {{ hh.barangay }}
+            </td>
+            <td class="cell-date">
+              <span class="mobile-label">Registered</span>
+              {{ formatDate(hh.created_at) }}
+            </td>
+            <td class="action-cell">
+              <div class="action-menu-wrap">
+                <button class="action-trigger" (click)="toggleMenu(hh.id)" type="button">
+                  <ion-icon name="ellipsis-vertical-outline"></ion-icon>
+                </button>
+                <div class="action-menu" *ngIf="openMenuId === hh.id">
+                  <button (click)="view(hh)" type="button">
+                    <ion-icon name="eye-outline"></ion-icon> View
+                  </button>
+                  <button (click)="edit(hh)" type="button">
+                    <ion-icon name="pencil-outline"></ion-icon> Edit
+                  </button>
+                  <div class="menu-divider"></div>
+                  <button class="danger" (click)="delete(hh)" type="button">
+                    <ion-icon name="trash-outline"></ion-icon> Delete
+                  </button>
+                </div>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- Pagination -->
+      <div class="pagination" *ngIf="totalPages > 1">
+        <span class="pag-info">
+          Showing {{ (currentPage - 1) * perPage + 1 }}–{{ pageEnd }} of {{ filtered.length }}
+        </span>
+        <div class="pag-controls">
+          <button class="pag-btn" (click)="goToPage(currentPage - 1)" [disabled]="currentPage === 1" type="button">
+            <ion-icon name="chevron-back-outline"></ion-icon>
+          </button>
+          <button class="pag-btn" *ngFor="let n of pageNumbers"
+                  [class.active]="n === currentPage" (click)="goToPage(n)" type="button">{{ n }}</button>
+          <button class="pag-btn" (click)="goToPage(currentPage + 1)" [disabled]="currentPage === totalPages" type="button">
+            <ion-icon name="chevron-forward-outline"></ion-icon>
+          </button>
+        </div>
+      </div>
+    </div>
+
   </div>
 
-  <div *ngIf="!loading && loadError" class="load-error">
-    <p>Couldn't load households. Please check your connection and try again.</p>
-    <ion-button expand="block" fill="outline" (click)="loadHouseholds()">Retry</ion-button>
+  <div class="loading-state" *ngIf="loading">
+    <ion-spinner name="crescent"></ion-spinner>
   </div>
 
-  <div *ngIf="!loading && !loadError && households.length === 0">
-    <p>No households found.</p>
+  <div class="empty-state" *ngIf="loadError && !loading">
+    Failed to load households.
   </div>
-
-  <ion-list *ngIf="!loading && !loadError && households.length > 0">
-    <ion-item
-      *ngFor="let household of households"
-      button="true"
-      [routerLink]="['/admin/households', household.id]">
-      <ion-label>
-        <h2>{{ household.household_number }}</h2>
-        <p>
-          {{ household.house_number }} {{ household.street }},
-          Purok {{ household.purok }},
-          {{ household.barangay }}
-        </p>
-      </ion-label>
-    </ion-item>
-  </ion-list>
 
 </ion-content>

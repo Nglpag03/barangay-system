@@ -23,6 +23,19 @@
   <!-- DASHBOARD GRID -->
   <div class="dashboard-grid" *ngIf="!isLoading">
     
+                      <!-- Health Index (Dynamic) -->
+        <div class="panel health-panel">
+          <h4>BARANGAY HEALTH INDEX</h4>
+          <div class="health-content">
+            <div class="circular-progress" [style.background]="'conic-gradient(#107c41 0% ' + healthIndex + '%, #dcfce7 ' + healthIndex + '% 100%)'">
+              <div class="inner-circle">
+                <span>{{ healthIndex }}%</span>
+              </div>
+            </div>
+            <p>Record completeness this quarter</p>
+          </div>
+        </div>
+
     <!-- STATS ROW -->
     <div class="stats-row">
       <div class="stat-card" *ngFor="let stat of stats">
@@ -34,43 +47,48 @@
       </div>
     </div>
 
+
     <!-- MIDDLE SECTION -->
     <div class="middle-section">
+
       
       <!-- Recent Requests -->
-      <div class="panel requests-panel">
+<div class="panel requests-panel">
         <div class="panel-header">
           <h3>Recent Requests</h3>
-          <a routerLink="/admin/requests" class="view-all">View All</a>
+          <a routerLink="/admin/requests" class="view-all">View All <ion-icon name="arrow-forward-outline"></ion-icon></a>
         </div>
-        <div class="table-container">
-          <table>
-            <thead>
-              <tr>
-                <th>REQUEST ID</th>
-                <th>RESIDENT</th>
-                <th>TYPE</th>
-                <th>DATE</th>
-                <th>STATUS</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr *ngFor="let req of recentRequests" (click)="onRequestClick(req)">
-                <td class="req-id">{{ req.id }}</td>
-                <td class="req-name">{{ req.residentName }}</td>
-                <td class="req-type">{{ req.type }}</td>
-                <td class="req-date">{{ formatDate(req.date) }}</td>
-                <td>
-                  <span class="badge" [ngClass]="req.status">{{ req.status | titlecase }}</span>
-                </td>
-              </tr>
-              <tr *ngIf="recentRequests.length === 0">
-                <td colspan="5" class="empty-state">No recent requests found.</td>
-              </tr>
-            </tbody>
-          </table>
+        
+        <!-- Switched to Div Grid for exact styling -->
+        <div class="requests-list">
+          
+          <!-- Header Row (Hidden on Mobile) -->
+          <div class="list-header">
+            <div>REQUEST ID</div>
+            <div>RESIDENT</div>
+            <div>TYPE</div>
+            <div>DATE</div>
+            <div>STATUS</div>
+          </div>
+
+          <!-- Data Rows -->
+          <div class="request-row" *ngFor="let req of recentRequests" (click)="onRequestClick(req)">
+            <div class="req-id">{{ req.id }}</div>
+            <div class="req-name">{{ req.residentName }}</div>
+            <div class="req-type">{{ req.type }}</div>
+            <div class="req-date">{{ formatDate(req.date) }}</div>
+            <div class="req-status">
+              <span class="badge" [ngClass]="req.status">{{ req.status | titlecase }}</span>
+            </div>
+          </div>
+
+          <!-- Empty State -->
+          <div *ngIf="recentRequests.length === 0" class="empty-state">
+            No recent requests found.
+          </div>
         </div>
       </div>
+
 
       <!-- Right Side Panel -->
       <div class="side-panel">
@@ -91,18 +109,6 @@
           </div>
         </div>
 
-        <!-- Health Index (Dynamic) -->
-        <div class="panel health-panel">
-          <h4>BARANGAY HEALTH INDEX</h4>
-          <div class="health-content">
-            <div class="circular-progress" [style.background]="'conic-gradient(#107c41 0% ' + healthIndex + '%, #dcfce7 ' + healthIndex + '% 100%)'">
-              <div class="inner-circle">
-                <span>{{ healthIndex }}%</span>
-              </div>
-            </div>
-            <p>Record completeness this quarter</p>
-          </div>
-        </div>
 
       </div>
     </div>

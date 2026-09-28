@@ -70,4 +70,30 @@ export class HouseholdService {
 
     return data as Household | null;
   }
+
+    async findByHouseholdNumber(
+    householdNumber: string,
+    excludeId?: string
+  ): Promise<Household | null> {
+    const trimmed = householdNumber.trim();
+    if (!trimmed) return null;
+
+    let query = this.supabaseService.client
+      .from('households')
+      .select('*')
+      .ilike('household_number', trimmed);
+
+    if (excludeId) {
+      query = query.neq('id', excludeId);
+    }
+
+    const { data, error } = await query.maybeSingle();
+
+    if (error) {
+      console.error('findByHouseholdNumber error:', error);
+      return null;
+    }
+
+    return (data as Household) ?? null;
+  }
 }
