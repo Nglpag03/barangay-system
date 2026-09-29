@@ -1,79 +1,203 @@
-<ion-header>
-  <ion-toolbar>
-    <ion-buttons slot="start">
-      <ion-back-button defaultHref="/admin/dashboard"></ion-back-button>
-    </ion-buttons>
-    <ion-title>Documents</ion-title>
-  </ion-toolbar>
-</ion-header>
+<ion-content [fullscreen]="true" class="residents-content">
 
-<ion-content class="ion-padding">
+  <!-- TOP BAR -->
+<div class="top-bar">
+  <div class="page-title">
+    <h1>Documents</h1>
+    <p>{{ todayDate }}</p>
+  </div>
+  <div class="system-status">
+    <span class="status-dot"></span> System Online
+  </div>
+</div>
 
-  <h2>Upload New Document</h2>
-
-  <ion-item>
-    <ion-label position="stacked">Resident</ion-label>
-    <ion-select [(ngModel)]="selectedResidentId" placeholder="Select a resident">
-      <ion-select-option
-        *ngFor="let resident of residents"
-        [value]="resident.id">
-        {{ resident.last_name }}, {{ resident.first_name }} ({{ resident.resident_number }})
-      </ion-select-option>
-    </ion-select>
-  </ion-item>
-
-  <ion-item>
-    <ion-label position="stacked">Document Type</ion-label>
-    <ion-input [(ngModel)]="documentType" type="text" placeholder="e.g. Barangay Clearance"></ion-input>
-  </ion-item>
-
-  <ion-item>
-    <ion-label position="stacked">Document Number (optional)</ion-label>
-    <ion-input [(ngModel)]="documentNumber" type="text"></ion-input>
-  </ion-item>
-
-  <ion-item>
-    <ion-label position="stacked">File</ion-label>
-    <input type="file" (change)="onFileSelected($event)" accept=".pdf,.jpg,.jpeg,.png" />
-  </ion-item>
-
-  <ion-button
-    expand="block"
-    [disabled]="uploading"
-    (click)="upload()">
-    {{ uploading ? 'Uploading...' : 'Upload Document' }}
-  </ion-button>
-
-  <p class="error" *ngIf="uploadError">{{ uploadError }}</p>
-
-  <hr />
-
-  <h2>All Documents</h2>
-
-  <div *ngIf="loading">
-    <p>Loading documents...</p>
+  <!-- PAGE HEADER -->
+  <div class="page-header">
+    <div class="header-info">
+      <h2>Document Registry
+        <span class="count-badge">{{ documents.length }} document{{ documents.length === 1 ? '' : 's' }}</span>
+      </h2>
+      <p>Upload and manage issued barangay documents.</p>
+    </div>
+    <button class="btn-primary" (click)="openUpload()" type="button">
+      <ion-icon name="cloud-upload-outline"></ion-icon>
+      Upload Document
+    </button>
   </div>
 
-  <div *ngIf="!loading && loadError" class="load-error">
-    <p>Couldn't load documents. Please check your connection and try again.</p>
-    <ion-button expand="block" fill="outline" (click)="loadData()">Retry</ion-button>
+  <!-- CONTROLS ROW -->
+  <div class="controls-row">
+    <div class="search-wrapper">
+      <ion-icon name="search-outline"></ion-icon>
+      <input
+        type="text"
+        placeholder="Search by resident, type, or number"
+        [(ngModel)]="searchQuery"
+        (ngModelChange)="applyFilters()">
+    </div>
+
+    <div class="filter-tabs">
+      <button [class.active]="activeFilter === 'all'"     (click)="setFilter('all')">All</button>
+      <button [class.active]="activeFilter === 'issued'"  (click)="setFilter('issued')">Issued</button>
+      <button [class.active]="activeFilter === 'revoked'" (click)="setFilter('revoked')">Revoked</button>
+    </div>
   </div>
 
-  <div *ngIf="!loading && !loadError && documents.length === 0">
-    <p>No documents uploaded yet.</p>
+  <!-- LOADING -->
+  <div class="loading-state" *ngIf="loading">
+    <ion-spinner name="crescent"></ion-spinner>
   </div>
 
-  <ion-list *ngIf="!loading && !loadError && documents.length > 0">
-    <ion-item *ngFor="let document of documents">
-      <ion-label>
-        <h2>{{ getResidentName(document.resident_id) }} — {{ document.document_type }}</h2>
-        <p *ngIf="document.document_number">Number: {{ document.document_number }}</p>
-        <p>Issued: {{ document.issued_at | date:'medium' }}</p>
-      </ion-label>
-      <ion-badge slot="end" [color]="document.status === 'issued' ? 'success' : 'danger'">
-        {{ document.status }}
-      </ion-badge>
-    </ion-item>
-  </ion-list>
+  <!-- ERROR -->
+  <div class="empty-state" *ngIf="!loading && loadError">
+    <ion-icon name="alert-circle-outline"></ion-icon>
+    <p>Couldn't load documents.</p>
+    <span>Please check your connection and try again.</span>
+    <button class="btn-retry" (click)="loadData()" type="button">Retry</button>
+  </div>
+
+  <!-- TABLE -->
+  <div class="table-panel" *ngIf="!loading && !loadError">
+    <table>
+      <thead>
+        <tr>
+          <th>RESIDENT</th>
+          <th>DOCUMENT TYPE</th>
+          <th>NUMBER</th>
+          <th>ISSUED</th>
+          <th>STATUS</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let document of filteredDocuments" class="document-row">
+          <td class="cell-resident">
+            <div class="avatar-circle">
+              {{ getInitials(document.resident_id) }}
+            </div>
+            <div class="resident-details">
+              <span class="name">{{ getResidentName(document.resident_id) }}</span>
+              <span class="meta">{{ document.resident_id | slice:0:8 }}…</span>
+            </div>
+          </td>
+
+          <td class="cell-type">
+            <span class="mobile-label">TYPE</span>
+            {{ document.document_type }}
+          </td>
+
+          <td class="cell-purpose">
+            <span class="mobile-label">NUMBER</span>
+            {{ document.document_number || '—' }}
+          </td>
+
+          <td class="cell-date">
+            <span class="mobile-label">ISSUED</span>
+            {{ document.issued_at | date:'mediumDate' }}
+          </td>
+
+          <td class="cell-status">
+            <span class="badge"
+                  [ngClass]="document.status === 'issued' ? 'approved' : 'rejected'">
+              {{ document.status | titlecase }}
+            </span>
+          </td>
+        </tr>
+
+        <tr *ngIf="filteredDocuments.length === 0">
+          <td colspan="5" class="empty-state">
+            <ion-icon name="document-text-outline"></ion-icon>
+            <p>No documents found</p>
+            <span>Try adjusting your search or filter</span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- UPLOAD MODAL -->
+  <div class="edit-overlay" *ngIf="uploadOpen" (click)="closeUpload()">
+    <div class="edit-panel" (click)="$event.stopPropagation()">
+
+      <div class="edit-header">
+        <div>
+          <h3>Upload Document</h3>
+          <p>Attach a PDF or image for a resident.</p>
+        </div>
+        <button class="close-btn" (click)="closeUpload()" type="button">
+          <ion-icon name="close-outline"></ion-icon>
+        </button>
+      </div>
+
+      <div class="edit-body">
+
+        <!-- RESIDENT -->
+        <div class="form-group">
+          <label>Resident <span class="optional">*</span></label>
+          <div class="select-wrapper">
+            <select [(ngModel)]="selectedResidentId">
+              <option [ngValue]="null">— Select a resident —</option>
+              <option *ngFor="let r of residents" [ngValue]="r.id">
+                {{ r.last_name }}, {{ r.first_name }} ({{ r.resident_number }})
+              </option>
+            </select>
+          </div>
+        </div>
+
+        <!-- TYPE -->
+        <div class="form-group">
+          <label>Document Type <span class="optional">*</span></label>
+          <input
+            type="text"
+            [(ngModel)]="documentType"
+            placeholder="e.g. Barangay Clearance">
+        </div>
+
+        <!-- NUMBER -->
+        <div class="form-group">
+          <label>Document Number <span class="optional">(optional)</span></label>
+          <input
+            type="text"
+            [(ngModel)]="documentNumber"
+            placeholder="e.g. BC-2026-0012">
+        </div>
+
+        <!-- FILE -->
+        <div class="form-group">
+          <label>File <span class="optional">*</span></label>
+          <label class="file-drop">
+            <input
+              type="file"
+              accept=".pdf,.jpg,.jpeg,.png"
+              (change)="onFileSelected($event)"
+              hidden>
+            <ion-icon name="cloud-upload-outline"></ion-icon>
+            <span *ngIf="!selectedFile">Choose a PDF or image…</span>
+            <span *ngIf="selectedFile" class="file-name">
+              {{ selectedFile.name }}
+            </span>
+          </label>
+        </div>
+
+        <!-- ERROR -->
+        <div class="alert error" *ngIf="uploadError">
+          <ion-icon name="alert-circle-outline"></ion-icon>
+          {{ uploadError }}
+        </div>
+
+      </div>
+
+      <div class="edit-footer">
+        <button class="btn-cancel" (click)="closeUpload()" type="button">Cancel</button>
+        <button class="btn-primary"
+                (click)="upload()"
+                [disabled]="uploading"
+                type="button">
+          <ion-spinner name="crescent" *ngIf="uploading"></ion-spinner>
+          {{ uploading ? 'Uploading…' : 'Upload Document' }}
+        </button>
+      </div>
+
+    </div>
+  </div>
 
 </ion-content>

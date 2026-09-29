@@ -1,36 +1,116 @@
-<ion-header>
-  <ion-toolbar>
-    <ion-buttons slot="start">
-      <ion-back-button defaultHref="/admin/dashboard"></ion-back-button>
-    </ion-buttons>
-    <ion-title>Audit Logs</ion-title>
-  </ion-toolbar>
-</ion-header>
+<ion-content [fullscreen]="true" class="residents-content">
 
-<ion-content class="ion-padding">
+  <!-- TOP BAR -->
+  <header class="top-bar">
+    <div class="page-title">
+      <h1>Audit Logs</h1>
+      <p>{{ todayDate }}</p>
+    </div>
+    <div class="system-status">
+      <span class="status-dot"></span> System Online
+    </div>
+  </header>
 
-  <div *ngIf="loading">
-    <p>Loading audit logs...</p>
+  <!-- PAGE HEADER -->
+  <div class="page-header">
+    <div class="header-info">
+      <h2>Activity Timeline
+        <span class="count-badge">{{ logs.length }} event{{ logs.length === 1 ? '' : 's' }}</span>
+      </h2>
+      <p>Every action performed across the barangay system.</p>
+    </div>
   </div>
 
-  <div *ngIf="!loading && loadError" class="load-error">
-    <p>Couldn't load audit logs. Please check your connection and try again.</p>
-    <ion-button expand="block" fill="outline" (click)="loadLogs()">Retry</ion-button>
+  <!-- CONTROLS ROW -->
+  <div class="controls-row">
+    <div class="search-wrapper">
+      <ion-icon name="search-outline"></ion-icon>
+      <input
+        type="text"
+        placeholder="Search by action, entity, or actor"
+        [(ngModel)]="searchQuery">
+    </div>
+
+    <div class="filter-tabs">
+      <button [class.active]="activeFilter === 'all'"      (click)="setFilter('all')">All</button>
+      <button [class.active]="activeFilter === 'created'"  (click)="setFilter('created')">Created</button>
+      <button [class.active]="activeFilter === 'updated'"  (click)="setFilter('updated')">Updated</button>
+      <button [class.active]="activeFilter === 'deleted'"  (click)="setFilter('deleted')">Deleted</button>
+      <button [class.active]="activeFilter === 'uploaded'" (click)="setFilter('uploaded')">Uploaded</button>
+      <button [class.active]="activeFilter === 'status_changed'" (click)="setFilter('status_changed')">Status</button>
+    </div>
   </div>
 
-  <div *ngIf="!loading && !loadError && logs.length === 0">
-    <p>No audit logs yet.</p>
+  <!-- LOADING -->
+  <div class="loading-state" *ngIf="loading">
+    <ion-spinner name="crescent"></ion-spinner>
   </div>
 
-  <ion-list *ngIf="!loading && !loadError && logs.length > 0">
-    <ion-item *ngFor="let log of logs">
-      <ion-label>
-        <h2>{{ log.action }} — {{ log.entity_type }}</h2>
-        <p>{{ log.created_at | date:'medium' }}</p>
-        <p>Actor (user id): {{ log.user_id }}</p>
-        <p *ngIf="log.metadata">{{ log.metadata | json }}</p>
-      </ion-label>
-    </ion-item>
-  </ion-list>
+  <!-- ERROR -->
+  <div class="empty-state" *ngIf="!loading && loadError">
+    <ion-icon name="alert-circle-outline"></ion-icon>
+    <p>Couldn't load audit logs.</p>
+    <span>Please check your connection and try again.</span>
+    <button class="btn-retry" (click)="loadLogs()" type="button">Retry</button>
+  </div>
+
+  <!-- TABLE -->
+  <div class="table-panel" *ngIf="!loading && !loadError">
+    <table>
+      <thead>
+        <tr>
+          <th>ACTION</th>
+          <th>ENTITY</th>
+          <th>ACTOR</th>
+          <th>DETAILS</th>
+          <th>WHEN</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let log of filteredLogs" class="audit-row">
+          <td class="cell-action">
+            <span class="badge"
+                  [ngClass]="getActionClass(log.action)">
+              {{ formatAction(log.action) }}
+            </span>
+          </td>
+
+          <td class="cell-type">
+            <span class="mobile-label">ENTITY</span>
+            {{ formatEntity(log.entity_type) }}
+          </td>
+
+          <td class="cell-actor">
+            <span class="mobile-label">ACTOR</span>
+            <div class="actor-chip">
+              <div class="avatar-sm">{{ getActorInitials(log.user_id) }}</div>
+              <span class="actor-id">{{ shortenId(log.user_id) }}</span>
+            </div>
+          </td>
+
+          <td class="cell-purpose">
+            <span class="mobile-label">DETAILS</span>
+            {{ formatMetadata(log.metadata) }}
+          </td>
+
+          <td class="cell-date">
+            <span class="mobile-label">WHEN</span>
+            <div class="when-cell">
+              <span class="time">{{ log.created_at | date:'shortTime' }}</span>
+              <span class="date">{{ log.created_at | date:'MMM d, y' }}</span>
+            </div>
+          </td>
+        </tr>
+
+        <tr *ngIf="filteredLogs.length === 0">
+          <td colspan="5" class="empty-state">
+            <ion-icon name="document-text-outline"></ion-icon>
+            <p>No audit logs found</p>
+            <span>Try adjusting your search or filter</span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 
 </ion-content>

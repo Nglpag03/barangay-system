@@ -4,19 +4,8 @@ import { FormsModule } from '@angular/forms';
 import { ViewWillEnter } from '@ionic/angular';
 import {
   IonContent,
-  IonHeader,
-  IonToolbar,
-  IonTitle,
-  IonList,
-  IonItem,
-  IonLabel,
-  IonBackButton,
-  IonButtons,
-  IonButton,
-  IonSelect,
-  IonSelectOption,
-  IonInput,
-  IonBadge
+    IonIcon,
+    IonSpinner
 } from '@ionic/angular/standalone';
 
 import { DocumentService } from '../../../core/services/document.service';
@@ -24,27 +13,25 @@ import { ResidentService } from '../../../core/services/resident.service';
 import { ResidentDocument } from '../../../core/model/document.model';
 import { Resident } from '../../../core/model/resident.model';
 import { AuditLogService } from '../../../core/services/audit-log.service';
+import { addIcons } from 'ionicons';
+import {
+  searchOutline,
+  cloudUploadOutline,
+  closeOutline,
+  alertCircleOutline,
+  documentTextOutline
+} from 'ionicons/icons';
 @Component({
   selector: 'app-admin-documents',
   templateUrl: './documents.page.html',
   styleUrls: ['./documents.page.scss'],
+  standalone: true,
   imports: [
     CommonModule,
     FormsModule,
     IonContent,
-    IonHeader,
-    IonToolbar,
-    IonTitle,
-    IonList,
-    IonItem,
-    IonLabel,
-    IonBackButton,
-    IonButtons,
-    IonButton,
-    IonSelect,
-    IonSelectOption,
-    IonInput,
-    IonBadge
+      IonIcon,
+    IonSpinner
   ]
 })
 export class AdminDocumentsPage implements OnInit, ViewWillEnter {
@@ -62,15 +49,30 @@ export class AdminDocumentsPage implements OnInit, ViewWillEnter {
   documentNumber = '';
   selectedFile: File | null = null;
 
+  todayDate = '';
+activeFilter = 'all';
+searchQuery = '';
+uploadOpen = false;
+
   constructor(
     private readonly documentService: DocumentService,
     private readonly residentService: ResidentService,
     private readonly auditLogService: AuditLogService
-  ) {}
+  ) {
+    addIcons({
+  searchOutline,
+  cloudUploadOutline,
+  closeOutline,
+  alertCircleOutline,
+  documentTextOutline
+});}
 
-  async ngOnInit() {
-    await this.loadData();
-  }
+async ngOnInit() {
+  this.todayDate = new Date().toLocaleDateString('en-PH', {
+    weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+  }).toUpperCase();
+  await this.loadData();
+}
 
   async ionViewWillEnter() {
     await this.loadData();
@@ -142,4 +144,49 @@ export class AdminDocumentsPage implements OnInit, ViewWillEnter {
     this.documentNumber = '';
     this.selectedFile = null;
   }
+
+  // ─── Search / filter ───
+get filteredDocuments(): ResidentDocument[] {
+  const q = this.searchQuery.toLowerCase().trim();
+  let list = this.documents;
+
+  if (this.activeFilter !== 'all') {
+    list = list.filter(d => d.status === this.activeFilter);
+  }
+
+  if (q) {
+    list = list.filter(d => {
+      const name = this.getResidentName(d.resident_id).toLowerCase();
+      const type = d.document_type?.toLowerCase() ?? '';
+      const num  = d.document_number?.toLowerCase() ?? '';
+      return name.includes(q) || type.includes(q) || num.includes(q);
+    });
+  }
+
+  return list;
+}
+
+applyFilters() { /* no-op — getter handles it, but called for ngModelChange */ }
+
+setFilter(filter: string) {
+  this.activeFilter = filter;
+}
+
+// ─── Initials for avatar ───
+getInitials(residentId: string): string {
+  const r = this.residentsById.get(residentId);
+  if (!r) return '??';
+  return `${r.first_name?.[0] ?? ''}${r.last_name?.[0] ?? ''}`.toUpperCase();
+}
+
+// ─── Upload modal ───
+openUpload() {
+  this.uploadOpen = true;
+  this.uploadError = null;
+}
+
+closeUpload() {
+  this.uploadOpen = false;
+  this.uploadError = null;
+}
 }

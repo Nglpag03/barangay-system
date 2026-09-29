@@ -527,7 +527,7 @@
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-    padding: 20px 150px 18px 24px;
+    padding: 20px 24px 18px 24px;
     min-height: 78px;
     box-sizing: border-box;
     background: rgba(255, 255, 255, 0.85);
@@ -540,12 +540,19 @@
   }
 
   .dashboard-grid {
-    gap: 24px;
-    padding: 100px 28px 90px 28px;
-    box-sizing: border-box;
-    width: 100% !important;
     display: flex !important;
     flex-direction: column !important;
+    gap: 20px !important;
+
+    /* 👇 reset the desktop negative margin, use real padding */
+    margin: 0 !important;
+    padding: 100px 24px 100px 24px !important;
+    box-sizing: border-box;
+    width: 100% !important;
+
+    /* 👇 prevent children from being forced to equal heights */
+    align-items: stretch !important;
+    grid-template-areas: none !important;
   }
 
   .middle-section {
@@ -569,41 +576,81 @@
     max-width: 100% !important;
   }
 
+    .dashboard-grid > .middle-section {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 16px !important;
+    align-items: stretch !important;
+    width: 100% !important;
+  }
+
+  /* 👇 Ensure the requests and actions panels take full width on mobile */
+  .dashboard-grid > .middle-section > .requests-panel,
+  .dashboard-grid > .middle-section > .side-panel > .actions-panel {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
   .side-panel {
     display: grid;
     grid-template-columns: 1fr;
     gap: 14px;
   }
 
+  /* ─── STATS ROW: reset forced heights ─── */
   .stats-row {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 16px;
+    grid-template-rows: auto !important;   /* 👈 reset "1fr 1fr" */
+    height: auto !important;               /* 👈 reset desktop height: 100% */
+    gap: 14px;
 
     .stat-card {
-      min-height: 200px;
+      min-height: 170px;                   /* 👈 smaller than 200px */
+      padding: 22px 20px;
+      background: #ffffff;
+      border: 1px solid #e9e5dc;
+      border-radius: 18px;
+      box-shadow: none;
+      box-sizing: border-box;
       display: flex;
       flex-direction: column;
       justify-content: center;
-      padding: 28px 24px;
-      background: #ffffff;
-      border: 1px solid #e9e5dc;
-      border-radius: 20px;
-      box-shadow: none;
-      box-sizing: border-box;
 
-      .stat-label { margin-bottom: 20px; font-size: 15px; line-height: 1.2; color: #8a8985; font-weight: 500; letter-spacing: 0.3px; text-transform: uppercase; }
-      .stat-value { margin-bottom: 20px; font-size: 42px; line-height: 1; color: #111; font-weight: 700; letter-spacing: -1px; }
+      .stat-label {
+        margin-bottom: 16px;
+        font-size: 13px;
+        line-height: 1.2;
+        color: #8a8985;
+        font-weight: 500;
+        letter-spacing: 0.3px;
+        text-transform: uppercase;
+      }
+
+      .stat-value {
+        margin-bottom: 14px;
+        font-size: 36px;
+        line-height: 1;
+        color: #111;
+        font-weight: 700;
+        letter-spacing: -1px;
+      }
+
       .stat-delta {
-        display: flex; align-items: center; gap: 8px; font-size: 15px; line-height: 1.2; font-weight: 400;
-        .dot { width: 10px; height: 10px; min-width: 10px; }
+        display: flex; align-items: center; gap: 8px;
+        font-size: 14px; line-height: 1.2; font-weight: 400;
+
+        .dot { width: 9px; height: 9px; min-width: 9px; }
       }
     }
   }
 
+  /* ─── HEALTH PANEL: shrink + center ─── */
   .health-panel {
     padding: 24px;
     border-radius: 20px;
+    height: auto;              /* 👈 reset the desktop height: 100% */
+    min-height: auto;
 
     h4 { margin-bottom: 20px; font-size: 12px; }
 
@@ -614,9 +661,21 @@
       gap: 20px;
     }
 
-    .circular-progress { width: 150px; height: 150px; min-width: 150px; }
-    .inner-circle { width: 118px; height: 118px; font-size: 24px; }
-    .health-content p { max-width: 260px; font-size: 16px; text-align: center; }
+    .circular-progress {
+      width: 150px;
+      height: 150px;
+      min-width: 150px;
+    }
+    .inner-circle {
+      width: 118px;
+      height: 118px;
+      font-size: 24px;
+    }
+    .health-content p {
+      max-width: 260px;
+      font-size: 16px;
+      text-align: center;
+    }
   }
 
   .requests-panel,
@@ -624,53 +683,176 @@
     border-radius: 20px;
   }
 
-  .welcome-banner {
-    padding: 20px 22px;
-    border-radius: 20px;
+  /* 👇 Actions panel should shrink-wrap its content on mobile too */
+  .actions-panel {
+    align-self: stretch !important;   /* full width, but content-sized height */
+    height: auto !important;
   }
 }
 
 @media (max-width: 480px) {
+
+  /* ─── TOP BAR ─── */
   .top-bar {
-    padding: 18px 120px 16px 16px;
-    min-height: 72px;
-    .page-title h1 { font-size: 20px; }
-    .page-title p { font-size: 10px; }
+    padding: 16px 16px 14px 16px;       /* 👈 tighter, symmetric */
+    min-height: 64px;                    /* 👈 was 72px */
+
+    .page-title h1 { font-size: 20px; line-height: 1.15; }
+    .page-title p  { font-size: 10px; margin-top: 2px; }
   }
 
-  .stats-row {
-    gap: 14px;
-    .stat-card {
-      min-height: 150px;
-      padding: 18px 16px;
-      border-radius: 14px;
-      .stat-label { margin-bottom: 14px; font-size: 11px; letter-spacing: 0.3px; }
-      .stat-value { margin-bottom: 12px; font-size: 28px; letter-spacing: -0.6px; }
-      .stat-delta { gap: 6px; font-size: 11px; .dot { width: 7px; height: 7px; min-width: 7px; } }
+  /* ─── DASHBOARD GRID ─── */
+  .dashboard-grid {
+    padding: 84px 16px 90px 16px !important;   /* 👈 84 = 64 bar + 20 gap */
+    gap: 14px !important;                       /* 👈 was 16px */
+  }
+
+  /* ─── HEALTH PANEL: fix invisible donut ─── */
+  .health-panel {
+    padding: 20px;
+    border-radius: 20px;
+    height: auto;
+
+    h4 {
+      margin-bottom: 16px;
+      font-size: 11px;
+      letter-spacing: 0.5px;
+    }
+
+    .health-content {
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 16px;                               /* 👈 was 20px */
+    }
+
+    /* 👇 KEY FIX: override min-width AND set fixed dimensions */
+    .circular-progress {
+      width: 130px !important;
+      height: 130px !important;
+      min-width: 130px !important;             /* 👈 was 176px, forcing oversized */
+      max-width: 130px !important;
+    }
+
+    .inner-circle {
+      width: 100px !important;
+      height: 100px !important;
+      font-size: 20px !important;
+    }
+
+    .health-content p {
+      font-size: 14px;                         /* 👈 was 15px */
+      max-width: 240px;
+      line-height: 1.4;
     }
   }
 
-  .health-panel {
-    padding: 20px;
-    .circular-progress { width: 130px; height: 130px; min-width: 130px; }
-    .inner-circle { width: 100px; height: 100px; font-size: 20px; }
-    .health-content p { font-size: 15px; }
+  /* ─── STATS ROW: 2x2 with tighter cards ─── */
+  .stats-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-rows: auto !important;
+    height: auto !important;
+    gap: 10px;                                 /* 👈 was 12px */
+
+    .stat-card {
+      min-height: 130px;                       /* 👈 was 140px */
+      padding: 16px 14px;                      /* 👈 was 18px 16px */
+      border-radius: 16px;
+
+      .stat-label {
+        margin-bottom: 10px;                   /* 👈 was 12px */
+        font-size: 10px;                       /* 👈 was 11px */
+        letter-spacing: 0.4px;
+      }
+
+      .stat-value {
+        margin-bottom: 8px;                    /* 👈 was 10px */
+        font-size: 26px;                       /* 👈 was 28px */
+        letter-spacing: -0.5px;
+      }
+
+      .stat-delta {
+        gap: 5px;
+        font-size: 10px;                       /* 👈 was 11px */
+
+        .dot {
+          width: 6px;
+          height: 6px;
+          min-width: 6px;
+        }
+      }
+    }
   }
 
-  .badge { padding: 6px 12px; font-size: 12px; border-radius: 14px; }
+  /* ─── REQUESTS PANEL: compact rows ─── */
+  .requests-panel {
+    border-radius: 20px;
 
+    .panel-header {
+      padding: 18px;                            /* 👈 was 24px (desktop value leaked through) */
+
+      h3 { font-size: 16px; }
+      .view-all { font-size: 13px; }
+    }
+  }
+
+  .list-header,
+  .request-row {
+    padding: 12px 18px;                         /* 👈 tighter than desktop 16px 24px */
+    gap: 12px;
+  }
+
+  .request-row {
+    .req-id   { font-size: 11px; }
+    .req-name { font-size: 13px; }
+    .req-type { font-size: 13px; }
+    .req-date { font-size: 11px; }
+  }
+
+  /* ─── BADGES ─── */
+  .badge {
+    padding: 4px 10px;                          /* 👈 was 6px 12px */
+    font-size: 11px;                            /* 👈 was 12px */
+    border-radius: 12px;
+  }
+
+  /* ─── QUICK ACTIONS ─── */
   .actions-panel {
-    .panel-header { min-height: 60px; padding: 0 18px; h3 { font-size: 18px; gap: 8px; ion-icon { font-size: 18px; } } }
+    border-radius: 20px;
+
+    .panel-header {
+      min-height: 56px;                         /* 👈 was 60px */
+      padding: 0 18px;
+
+      h3 {
+        font-size: 16px;                        /* 👈 was 18px */
+        gap: 8px;
+        ion-icon { font-size: 18px; }
+      }
+    }
+
     .actions-list { padding: 4px 0; }
+
     .action-item {
-      gap: 12px; padding: 12px 18px;
-      .action-icon { width: 36px; height: 36px; font-size: 18px; border-radius: 9px; }
+      gap: 12px;
+      padding: 12px 18px;                       /* 👈 was 14px */
+
+      .action-icon {
+        width: 34px;                            /* 👈 was 36px */
+        height: 34px;
+        font-size: 17px;
+        border-radius: 9px;
+      }
+
       span { font-size: 14px; }
       .arrow { font-size: 16px; }
     }
   }
 
-  .middle-section { gap: 14px !important; }
+  /* ─── MIDDLE SECTION ─── */
+  .middle-section {
+    gap: 14px !important;
+  }
 }
 
 

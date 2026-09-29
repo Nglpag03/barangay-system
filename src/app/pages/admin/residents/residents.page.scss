@@ -8,7 +8,9 @@
   --padding-top: 0;
   --padding-bottom: 0;
 }
-
+.residents-content::part(scroll) {
+  padding-bottom: 60px;
+}
 .resident-row,
 table tbody tr {
   cursor: pointer;

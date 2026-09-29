@@ -1,66 +1,210 @@
-<ion-header>
-  <ion-toolbar>
-    <ion-buttons slot="start">
-      <ion-back-button defaultHref="/admin/dashboard"></ion-back-button>
-    </ion-buttons>
-    <ion-title>Requests</ion-title>
-  </ion-toolbar>
-</ion-header>
+<ion-content [fullscreen]="true" class="residents-content">
 
-<ion-content class="ion-padding">
+  <!-- TOP BAR -->
+  <header class="top-bar">
+    <div class="page-title">
+      <h1>Requests</h1>
+      <p>{{ todayDate }}</p>
+    </div>
+    <div class="system-status">
+      <span class="status-dot"></span> System Online
+    </div>
+  </header>
 
-  <div *ngIf="loading">
-    <p>Loading requests...</p>
+  <!-- PAGE HEADER -->
+  <div class="page-header">
+    <div class="header-info">
+      <h2>Request Queue
+        <span class="count-badge">{{ requests.length }} request{{ requests.length === 1 ? '' : 's' }}</span>
+      </h2>
+      <p>Review and process resident document requests.</p>
+    </div>
   </div>
 
-  <div *ngIf="!loading && loadError" class="load-error">
-    <p>Couldn't load requests. Please check your connection and try again.</p>
-    <ion-button expand="block" fill="outline" (click)="loadData()">Retry</ion-button>
+  <!-- CONTROLS ROW -->
+  <div class="controls-row">
+    <div class="search-wrapper">
+      <ion-icon name="search-outline"></ion-icon>
+      <input
+        type="text"
+        placeholder="Search by resident or request type"
+        (input)="onSearchChange($event)">
+    </div>
+
+    <div class="filter-tabs">
+      <button [class.active]="activeFilter === 'all'"        (click)="setFilter('all')">All</button>
+      <button [class.active]="activeFilter === 'pending'"    (click)="setFilter('pending')">Pending</button>
+      <button [class.active]="activeFilter === 'processing'" (click)="setFilter('processing')">Processing</button>
+      <button [class.active]="activeFilter === 'approved'"   (click)="setFilter('approved')">Approved</button>
+      <button [class.active]="activeFilter === 'completed'"  (click)="setFilter('completed')">Completed</button>
+    </div>
   </div>
 
-  <div *ngIf="!loading && !loadError && requests.length === 0">
-    <p>No requests found.</p>
+  <!-- LOADING -->
+  <div class="loading-state" *ngIf="loading">
+    <ion-spinner name="crescent"></ion-spinner>
   </div>
 
-  <ion-list *ngIf="!loading && !loadError && requests.length > 0">
-    <ion-item *ngFor="let request of requests">
-      <ion-label>
-        <h2>{{ getResidentName(request.resident_id) }} — {{ request.request_type }}</h2>
-        <p *ngIf="request.purpose">Purpose: {{ request.purpose }}</p>
-        <p>Requested: {{ request.requested_at | date:'medium' }}</p>
+  <!-- ERROR -->
+  <div class="empty-state" *ngIf="!loading && loadError">
+    <ion-icon name="alert-circle-outline"></ion-icon>
+    <p>Couldn't load requests.</p>
+    <span>Please check your connection and try again.</span>
+    <button class="btn-retry" (click)="loadData()">Retry</button>
+  </div>
 
-        <ion-item lines="none">
-          <ion-label position="stacked">Status</ion-label>
-          <ion-select [(ngModel)]="statusDrafts[request.id]">
-            <ion-select-option value="pending">Pending</ion-select-option>
-            <ion-select-option value="processing">Processing</ion-select-option>
-            <ion-select-option value="approved">Approved</ion-select-option>
-            <ion-select-option value="rejected">Rejected</ion-select-option>
-            <ion-select-option value="completed">Completed</ion-select-option>
-          </ion-select>
-        </ion-item>
+  <!-- TABLE -->
+  <div class="table-panel" *ngIf="!loading && !loadError">
+    <table>
+      <thead>
+        <tr>
+          <th>RESIDENT</th>
+          <th>TYPE</th>
+          <th>PURPOSE</th>
+          <th>REQUESTED</th>
+          <th>STATUS</th>
+          <th></th>
+        </tr>
+      </thead>
+<tbody>
+  <tr *ngFor="let request of requests"
+      class="request-row"
+      (click)="openEdit(request)">
 
-        <ion-item lines="none">
-          <ion-label position="stacked">Remarks</ion-label>
-          <ion-textarea
-            [(ngModel)]="remarksDrafts[request.id]"
-            placeholder="Optional note for the resident"
-            autoGrow="true">
-          </ion-textarea>
-        </ion-item>
+    <td class="cell-resident">
+      <div class="avatar-circle">
+        {{ getInitials(request.resident_id) }}
+      </div>
+      <div class="resident-details">
+        <span class="name">{{ getResidentName(request.resident_id) }}</span>
+        <span class="meta">{{ request.resident_id | slice:0:8 }}…</span>
+      </div>
+    </td>
 
-        <ion-button
-          size="small"
-          [disabled]="savingId === request.id"
-          (click)="updateStatus(request)">
-          {{ savingId === request.id ? 'Saving...' : 'Update' }}
-        </ion-button>
-      </ion-label>
+    <td class="cell-type">
+      <span class="mobile-label">TYPE</span>
+      {{ formatRequestType(request.request_type) }}
+    </td>
 
-      <ion-badge slot="end" [color]="request.status === 'approved' || request.status === 'completed' ? 'success' : (request.status === 'rejected' ? 'danger' : 'warning')">
-        {{ request.status }}
-      </ion-badge>
-    </ion-item>
-  </ion-list>
+    <td class="cell-purpose">
+      <span class="mobile-label">PURPOSE</span>
+      {{ request.purpose || '—' }}
+    </td>
+
+    <td class="cell-date">
+      <span class="mobile-label">REQUESTED</span>
+      {{ request.requested_at | date:'mediumDate' }}
+    </td>
+
+    <td class="cell-status">
+      <span class="badge"
+            [ngClass]="getStatusClass(request.status)">
+        {{ request.status | titlecase }}
+      </span>
+    </td>
+
+    <td class="action-cell">
+      <!-- Optional: keep an edit icon that also opens the modal -->
+      <button class="action-trigger"
+              (click)="openEdit(request); $event.stopPropagation()"
+              type="button"
+              title="Update request">
+        <ion-icon name="create-outline"></ion-icon>
+      </button>
+    </td>
+  </tr>
+
+  <tr *ngIf="requests.length === 0">
+    <td colspan="6" class="empty-state">
+      <ion-icon name="document-text-outline"></ion-icon>
+      <p>No requests found</p>
+      <span>Try adjusting your search or filter</span>
+    </td>
+  </tr>
+</tbody>
+    </table>
+  </div>
+
+<!-- EDIT MODAL / PANEL -->
+<div class="edit-overlay" *ngIf="editingRequest" (click)="closeEdit()">
+  <div class="edit-panel" (click)="$event.stopPropagation()">
+
+    <div class="edit-header">
+      <div>
+        <h3>Update Request</h3>
+        <p>
+          {{ getResidentName(editingRequest.resident_id) }}
+          · {{ formatRequestType(editingRequest.request_type) }}
+        </p>
+      </div>
+      <button class="close-btn" (click)="closeEdit()" type="button">
+        <ion-icon name="close-outline"></ion-icon>
+      </button>
+    </div>
+
+    <div class="edit-body">
+
+      <!-- STATUS CHOICE AS PILLS -->
+      <div class="form-group">
+        <label>Status</label>
+        <div class="status-pills">
+          <button type="button"
+                  class="status-pill"
+                  [class.active]="statusDrafts[editingRequest.id] === 'pending'"
+                  (click)="statusDrafts[editingRequest.id] = 'pending'">
+            Pending
+          </button>
+          <button type="button"
+                  class="status-pill"
+                  [class.active]="statusDrafts[editingRequest.id] === 'processing'"
+                  (click)="statusDrafts[editingRequest.id] = 'processing'">
+            Processing
+          </button>
+          <button type="button"
+                  class="status-pill"
+                  [class.active]="statusDrafts[editingRequest.id] === 'approved'"
+                  (click)="statusDrafts[editingRequest.id] = 'approved'">
+            Approved
+          </button>
+          <button type="button"
+                  class="status-pill"
+                  [class.active]="statusDrafts[editingRequest.id] === 'completed'"
+                  (click)="statusDrafts[editingRequest.id] = 'completed'">
+            Completed
+          </button>
+          <button type="button"
+                  class="status-pill danger"
+                  [class.active]="statusDrafts[editingRequest.id] === 'rejected'"
+                  (click)="statusDrafts[editingRequest.id] = 'rejected'">
+            Rejected
+          </button>
+        </div>
+      </div>
+
+      <!-- REMARKS -->
+      <div class="form-group">
+        <label>Remarks <span class="optional">(optional)</span></label>
+        <textarea
+          rows="4"
+          [(ngModel)]="remarksDrafts[editingRequest.id]"
+          placeholder="Add a note for the resident…">
+        </textarea>
+      </div>
+
+    </div>
+
+    <div class="edit-footer">
+      <button class="btn-cancel" (click)="closeEdit()" type="button">Cancel</button>
+      <button class="btn-primary"
+              (click)="updateStatus(editingRequest)"
+              [disabled]="savingId === editingRequest.id"
+              type="button">
+        <ion-spinner name="crescent" *ngIf="savingId === editingRequest.id"></ion-spinner>
+        {{ savingId === editingRequest.id ? 'Saving…' : 'Save Changes' }}
+      </button>
+    </div>
+
+  </div>
+</div>
 
 </ion-content>
