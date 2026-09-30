@@ -1,0 +1,29 @@
+{
+  "name": "Barangay System",
+  "short_name": "Barangay",
+  "description": "Barangay Calintaan resident and document management system",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f8f7f2",
+  "theme_color": "#107c41",
+  "icons": [
+    {
+      "src": "assets/house.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "assets/house.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "assets/house.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

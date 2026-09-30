@@ -12,9 +12,25 @@
   <meta name="format-detection" content="telephone=no" />
   <meta name="msapplication-tap-highlight" content="no" />
 
-  <!-- add to homescreen for ios -->
+  <!-- ============================================ -->
+  <!-- PWA: Manifest + theme                              -->
+  <!-- ============================================ -->
+  <link rel="manifest" href="manifest.webmanifest" />
+  <meta name="theme-color" content="#107c41" />
+
+  <!-- ============================================ -->
+  <!-- PWA: iOS "Add to Home Screen" support              -->
+  <!-- ============================================ -->
   <meta name="mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="Barangay" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+
+  <!-- ============================================ -->
+  <!-- PWA: Icons                                         -->
+  <!-- ============================================ -->
+  <link rel="icon" type="image/png" href="assets/icons/icon-192.png" />
+  <link rel="apple-touch-icon" href="assets/icons/icon-192.png" />
 
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -22,8 +38,6 @@
   <link
     href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Serif+Display&display=swap"
     rel="stylesheet" />
-
-  <link rel="icon" type="image/png" href="assets/icon/favicon.png" />
 </head>
 
 <body>
